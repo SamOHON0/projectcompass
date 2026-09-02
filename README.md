@@ -30,7 +30,22 @@ Answers questions about a resident's history, risk, goals and next steps. Three 
 - Answers change as the record changes, which is why step 4 above matters.
 - Ask something outside the record and it says so rather than inventing an answer.
 
-The intelligence is simulated (deterministic, no API calls) so the demo always tells the same story. In production this layer would be a model call grounded in the resident's record, the service's policies, and the staff member's permissions. `src/lib/assistant.ts` and `src/lib/ai.ts` are the only files that would change.
+### Live mode
+
+Ask Compass runs against a real model when `ANTHROPIC_API_KEY` is set, and falls back to prepared answers when it is not. A deployment with no key still demos end to end, so the walkthrough never depends on the network.
+
+Set up:
+
+1. Add `ANTHROPIC_API_KEY` in Vercel under Settings, Environment Variables. Locally, put it in `.env.local`, which is gitignored. See `.env.example`.
+2. Redeploy. A **Live** badge appears on the Ask Compass panel when the key is found.
+
+What keeps it grounded: `src/lib/briefing.ts` builds the system prompt from the same data the UI renders, plus a written case background per resident. The model is told to answer only from that briefing, cite what it used, refuse to invent, use trauma-informed language, and never give clinical advice. Questions are wrapped in tags so instructions inside a question are treated as text, not commands.
+
+Cost and abuse controls are in `src/app/api/ask/route.ts`: the key stays server-side, 8 questions per IP per 10 minutes, a daily ceiling across all visitors (`COMPASS_DAILY_MAX`, default 200), a 300 character question cap and a 25 second timeout. The counters are in-process, so on serverless they are per instance rather than global. That is enough to stop casual abuse and runaway cost; a production build would move them to Redis or Vercel KV.
+
+The default model is `claude-haiku-4-5`, chosen for speed and cost on short grounded answers. Override with `COMPASS_MODEL`.
+
+The case note pipeline in `src/lib/ai.ts` stays deterministic, so the core demo tells the same story every time.
 
 ## Run locally
 
