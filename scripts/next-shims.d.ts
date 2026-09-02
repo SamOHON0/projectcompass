@@ -41,5 +41,5 @@ declare module "next/font/google" {
     preload?: boolean;
     fallback?: string[];
   }
-  export function Figtree(options?: FontOptions): FontResult;
+  export function Source_Sans_3(options?: FontOptions): FontResult;
 }

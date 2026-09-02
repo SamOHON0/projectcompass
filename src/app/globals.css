@@ -22,7 +22,8 @@
   --radius-input: 2px;
   --radius-control: 2px;
   --shadow-card: none;
-  --font-stack: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-stack: var(--font-sans, "Source Sans 3"), "Source Sans 3", "Source Sans Pro", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }

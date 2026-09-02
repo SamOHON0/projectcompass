@@ -1,11 +1,17 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { Figtree } from "next/font/google";
+import { Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { CompassProvider } from "@/lib/store";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
-const figtree = Figtree({ subsets: ["latin"], variable: "--font-figtree" });
+// Clear Sans is not on Google Fonts. Source Sans 3 is the closest match
+// available there: humanist, drawn for screen legibility, open apertures.
+const sourceSans = Source_Sans_3({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
   title: "Compass · Prototype",
@@ -19,7 +25,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body style={{ fontFamily: `${figtree.style.fontFamily}, -apple-system, "Segoe UI", Roboto, sans-serif` }}>
+      <body className={sourceSans.variable}>
         <ErrorBoundary>
           <CompassProvider>{children}</CompassProvider>
         </ErrorBoundary>
