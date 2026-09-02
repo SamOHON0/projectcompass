@@ -1,5 +1,5 @@
 // End-to-end click-through of the demo story, run against the real components.
-import { launchChromium } from "./browser.mjs";
+import { chromium } from "playwright";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -9,7 +9,7 @@ const shots = join(here, "..", "preview", "flow");
 import { mkdirSync } from "fs";
 mkdirSync(shots, { recursive: true });
 
-const browser = await launchChromium();
+const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium", args: ["--no-sandbox"] });
 const page = await browser.newPage({ viewport: { width: 1360, height: 950 } });
 
 const errors = [];
@@ -91,7 +91,8 @@ check("Manager sees the new incident", managerText.includes("Incident during wel
 check("Manager risk count updated", managerText.includes("2 Red"));
 await page.screenshot({ path: join(shots, "4-manager-after.png"), fullPage: true });
 
-await page.getByRole("button", { name: /Incident during welfare check/ }).click();
+// Path A: open the resident record from the alert.
+await page.getByRole("button", { name: "Open resident record" }).first().click();
 await page.waitForSelector(".modal-wide");
 check(
   "Drill-down opens resident record",
@@ -99,9 +100,18 @@ check(
 );
 check("Drawer lists the linked incident", (await page.getByRole("button", { name: /INC-2026-042/ }).count()) > 0);
 check("Manager can ask Compass from the drawer", (await page.locator(".modal-wide .ask").count()) === 1);
+check(
+  "Drawer shows the report awaiting sign-off",
+  (await page.locator(".modal-wide").getByText("Needs sign-off").count()) > 0
+);
 await page.screenshot({ path: join(shots, "5-manager-drawer.png") });
+await page.keyboard.press("Escape");
+await page.waitForSelector(".overlay", { state: "detached" });
 
-await page.getByRole("button", { name: /INC-2026-042/ }).click();
+// Path B: straight from the alert to the report, which is the one a manager wants.
+const reviewBtn = page.getByRole("button", { name: "Review and sign off" });
+check("Alert offers a direct route to the report", (await reviewBtn.count()) > 0);
+await reviewBtn.click();
 await page.waitForSelector("text=Sign off report");
 check("Manager sees the worker's own words", (await page.locator("text=I'm not going to that meeting").count()) > 0);
 await page.locator("#manager-note").fill("Debrief at handover. Risk review within 24 hours.");
@@ -113,12 +123,10 @@ const afterSign = await page.locator(".page").innerText();
 check("Alert moves to acknowledged after sign-off", afterSign.includes("Acknowledged"));
 await page.screenshot({ path: join(shots, "7-manager-signed.png"), fullPage: true });
 
-// Signing off returns the manager to the resident record, where the incident
-// now reads as signed. Close it with the keyboard.
-check("Signed incident shows as signed in the drawer", (await page.locator("text=Signed off").count()) > 0);
-await page.keyboard.press("Escape");
-await page.waitForSelector(".overlay", { state: "detached" });
-check("Escape closes the resident drawer", true);
+check(
+  "Alert now offers the signed report",
+  (await page.getByRole("button", { name: "View signed report" }).count()) > 0
+);
 
 // --- 7. Hardening: demo safeguards, keyboard, focus ---
 const bannerText = await page.locator(".demo-banner").innerText();

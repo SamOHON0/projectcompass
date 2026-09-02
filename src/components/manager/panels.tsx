@@ -59,8 +59,14 @@ export function ServiceOverview() {
   );
 }
 
-export function CriticalUpdates({ onOpenResident }: { onOpenResident?: (id: string) => void }) {
-  const { alerts } = useCompass();
+export function CriticalUpdates({
+  onOpenResident,
+  onOpenIncident,
+}: {
+  onOpenResident?: (id: string) => void;
+  onOpenIncident?: (id: string) => void;
+}) {
+  const { alerts, incidents } = useCompass();
   return (
     <section className="card">
       <div className="card-head">
@@ -70,15 +76,38 @@ export function CriticalUpdates({ onOpenResident }: { onOpenResident?: (id: stri
       <div className="card-body">
         <div className="row-list">
           {alerts.map((a) => {
-            const clickable = Boolean(a.residentId && onOpenResident);
-            const body = (
-              <>
+            const incident = a.incidentId ? incidents.find((i) => i.id === a.incidentId) : undefined;
+            const reportLabel =
+              incident?.status === "awaiting-signoff"
+                ? "Review and sign off"
+                : incident?.status === "signed"
+                  ? "View signed report"
+                  : "View draft report";
+
+            return (
+              <div className={`row alert-row alert-${a.kind}`} key={a.id}>
                 <div className="row-main">
                   <div className="row-title">
                     {a.title} {a.isNew && <NewPill />}
                   </div>
                   <div className="row-sub">{a.detail}</div>
-                  {clickable && <span className="row-link">Open resident record</span>}
+                  {incident?.status === "needs-worker" && (
+                    <div className="row-sub" style={{ color: "var(--amber)", fontWeight: 600 }}>
+                      Still with {incident.raisedBy.split(" ")[0]}, two fields outstanding.
+                    </div>
+                  )}
+                  <div className="row-actions">
+                    {incident && onOpenIncident && (
+                      <button className="btn btn-sm btn-primary" onClick={() => onOpenIncident(incident.id)}>
+                        {reportLabel}
+                      </button>
+                    )}
+                    {a.residentId && onOpenResident && (
+                      <button className="btn btn-sm btn-secondary" onClick={() => onOpenResident(a.residentId!)}>
+                        Open resident record
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="row-right">
                   <span className="row-meta">{a.when}</span>
@@ -86,19 +115,6 @@ export function CriticalUpdates({ onOpenResident }: { onOpenResident?: (id: stri
                     {a.status === "awaiting-review" ? "Awaiting review" : "Acknowledged"}
                   </span>
                 </div>
-              </>
-            );
-            return clickable ? (
-              <button
-                className={`row row-button alert-row alert-${a.kind}`}
-                key={a.id}
-                onClick={() => onOpenResident!(a.residentId!)}
-              >
-                {body}
-              </button>
-            ) : (
-              <div className={`row alert-row alert-${a.kind}`} key={a.id}>
-                {body}
               </div>
             );
           })}

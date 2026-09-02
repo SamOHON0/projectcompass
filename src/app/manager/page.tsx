@@ -44,7 +44,7 @@ export default function ManagerPage() {
           <ServiceOverview />
           <div className="grid grid-manager">
             <div className="stack">
-              <CriticalUpdates onOpenResident={setOpenResident} />
+              <CriticalUpdates onOpenResident={setOpenResident} onOpenIncident={setOpenIncident} />
               <HandoverOverview />
               <ClientProgress onOpenResident={setOpenResident} />
             </div>

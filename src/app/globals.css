@@ -1239,3 +1239,11 @@ main:focus { outline: none; }
   .step { flex: 1 1 45%; }
   .moveon-move { margin-left: 0; flex-basis: 100%; }
 }
+
+/* Actions belonging to a row, so anything mentioned can be acted on. */
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 9px;
+}

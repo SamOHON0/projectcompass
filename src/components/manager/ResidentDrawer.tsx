@@ -88,15 +88,26 @@ export default function ResidentDrawer({
             <>
               <div className="section-label">Open actions with the team</div>
               <div className="row-list">
-                {openActions.map((a) => (
-                  <div className="row" key={a.id}>
-                    <div className="row-main">
-                      <div className="row-title">{a.label}</div>
-                      <div className="row-sub">{a.source}</div>
+                {openActions.map((a) => {
+                  // An action that names a report should be a way into it.
+                  const linked = residentIncidents.find((inc) => a.label.includes(inc.ref));
+                  return (
+                    <div className="row" key={a.id}>
+                      <div className="row-main">
+                        <div className="row-title">{a.label}</div>
+                        <div className="row-sub">{a.source}</div>
+                        {linked && (
+                          <div className="row-actions">
+                            <button className="btn btn-sm btn-secondary" onClick={() => onOpenIncident(linked.id)}>
+                              Open report
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      <span className="row-meta">{a.due}</span>
                     </div>
-                    <span className="row-meta">{a.due}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </>
           )}

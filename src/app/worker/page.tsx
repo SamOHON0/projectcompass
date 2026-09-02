@@ -43,7 +43,11 @@ export default function WorkerPage() {
           <div className="stack">
             <HandoverPanel />
             <ClientGrid selectedId={selectedId} onSelect={setSelectedId} />
-            {selected && <ResidentDetail resident={selected} onOpenNote={() => setNoteOpen(true)} />}
+            {selected && <ResidentDetail
+                resident={selected}
+                onOpenNote={() => setNoteOpen(true)}
+                onOpenIncident={activeIncident ? () => setIncidentOpen(true) : undefined}
+              />}
           </div>
           <div className="stack">
             <ActionsPanel onOpenIncident={activeIncident ? () => setIncidentOpen(true) : undefined} />

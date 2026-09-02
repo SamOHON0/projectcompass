@@ -127,8 +127,17 @@ export function ClientGrid({
   );
 }
 
-export function ResidentDetail({ resident, onOpenNote }: { resident: Resident; onOpenNote: () => void }) {
-  const { notes } = useCompass();
+export function ResidentDetail({
+  resident,
+  onOpenNote,
+  onOpenIncident,
+}: {
+  resident: Resident;
+  onOpenNote: () => void;
+  onOpenIncident?: () => void;
+}) {
+  const { notes, incidents } = useCompass();
+  const residentIncidents = incidents.filter((i) => i.residentId === resident.id);
   const residentNotes = notes.filter((n) => n.residentId === resident.id);
   return (
     <section className="card">
@@ -149,6 +158,33 @@ export function ResidentDetail({ resident, onOpenNote }: { resident: Resident; o
           {resident.riskSummary}
           <div className="risk-when">Last updated {resident.riskUpdated}</div>
         </div>
+
+        {residentIncidents.length > 0 && onOpenIncident && (
+          <>
+            <div className="section-label">Incident reports</div>
+            <div className="row-list">
+              {residentIncidents.map((inc) => (
+                <div className="row" key={inc.id}>
+                  <div className="row-main">
+                    <div className="row-title">{inc.ref}</div>
+                    <div className="row-sub">
+                      {inc.status === "needs-worker"
+                        ? "Compass drafted this. Two fields still need you."
+                        : inc.status === "awaiting-signoff"
+                          ? "Submitted, waiting on manager sign-off."
+                          : `Signed off by ${inc.signedBy}.`}
+                    </div>
+                    <div className="row-actions">
+                      <button className="btn btn-sm btn-primary" onClick={onOpenIncident}>
+                        {inc.status === "needs-worker" ? "Complete report" : "Open report"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
         <div className="section-label">Independent living</div>
         <MoveOnSummary resident={resident} />
