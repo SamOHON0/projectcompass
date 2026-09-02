@@ -76,14 +76,11 @@ export default function Modal({
     [onClose]
   );
 
+  // Deliberately no click-outside-to-close: these dialogs hold typed work, and
+  // a stray click during a demo should not discard it. Escape and the close
+  // control are the ways out.
   return (
-    <div
-      className="overlay"
-      role="presentation"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
+    <div className="overlay" role="presentation">
       <div
         className={`modal${wide ? " modal-wide" : ""}`}
         role="dialog"
