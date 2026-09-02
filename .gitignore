@@ -2,7 +2,9 @@ node_modules
 preview
 .next
 out
-.env*
+.env
+.env.*
+!.env.example
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
