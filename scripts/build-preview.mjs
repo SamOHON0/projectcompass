@@ -10,11 +10,15 @@ const root = join(here, "..");
 const preview = join(root, "preview");
 mkdirSync(preview, { recursive: true });
 
-const run = (cmd, args) =>
-  execFileSync(cmd, args, { cwd: root, stdio: "inherit", shell: process.platform === "win32" });
+// npx needs a shell on Windows; a resolved binary does not, and running it
+// without one keeps quoted arguments intact.
+const run = (cmd, args, { shell = false } = {}) =>
+  execFileSync(cmd, args, { cwd: root, stdio: "inherit", shell });
 
 console.log("Rendering static views...");
-run("npx", ["tsx", "--tsconfig", "scripts/tsconfig.json", "scripts/render-preview.tsx"]);
+run("npx", ["tsx", "--tsconfig", "scripts/tsconfig.json", "scripts/render-preview.tsx"], {
+  shell: process.platform === "win32",
+});
 
 // esbuild ships inside tsx, so the harness needs no extra dependency. Prefer a
 // project-local install, fall back to the copy nested under tsx.

@@ -1,5 +1,5 @@
 // End-to-end click-through of the demo story, run against the real components.
-import { chromium } from "playwright";
+import { launchChromium } from "./browser.mjs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -9,7 +9,7 @@ const shots = join(here, "..", "preview", "flow");
 import { mkdirSync } from "fs";
 mkdirSync(shots, { recursive: true });
 
-const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium", args: ["--no-sandbox"] });
+const browser = await launchChromium();
 const page = await browser.newPage({ viewport: { width: 1360, height: 950 } });
 
 const errors = [];

@@ -58,6 +58,7 @@ Push to GitHub, then import the repo in Vercel. No environment variables, no dat
 
 ```bash
 npm install
+npx playwright install chromium   # once, for the browser-based checks
 npm run verify
 ```
 

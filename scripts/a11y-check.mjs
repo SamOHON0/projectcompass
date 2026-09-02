@@ -4,7 +4,7 @@
 // checks for the WCAG failures that actually occur in this UI and that can be
 // detected reliably from the DOM. They are not a substitute for a full axe run
 // or for testing with a real screen reader.
-import { chromium } from "playwright";
+import { launchChromium } from "./browser.mjs";
 import { readdirSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -87,7 +87,7 @@ const AUDIT = () => {
   return problems;
 };
 
-const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium", args: ["--no-sandbox"] });
+const browser = await launchChromium();
 const page = await browser.newPage({ viewport: { width: 1360, height: 900 } });
 
 const files = readdirSync(dir).filter((f) => f.endsWith(".html"));
