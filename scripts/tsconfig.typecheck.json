@@ -1,0 +1,21 @@
+{
+  "comment": "Strict typecheck of the pure logic modules. The sandbox has no @types/react, so JSX files are covered by the runtime flow test instead. Run `npm run verify` locally for a full typecheck via next build.",
+  "compilerOptions": {
+    "target": "ES2019",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": { "@/*": ["../src/*"] }
+  },
+  "include": ["../src/lib/types.ts", "../src/lib/data.ts", "../src/lib/ai.ts", "../src/lib/assistant.ts"]
+}
