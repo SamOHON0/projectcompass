@@ -1,6 +1,22 @@
-import type { ActionItem, CaseNote, HandoverItem, ManagerAlert, Resident } from "./types";
+import type { ActionItem, CaseNote, GoalArea, HandoverItem, ManagerAlert, Resident } from "./types";
 
 // All data in this file is fictional sample data for the prototype.
+
+/**
+ * The stages each kind of goal moves through.
+ *
+ * These are the steps a service actually records, which is why goals are shown
+ * as a position on a pathway rather than a percentage. Naming the stage tells a
+ * worker what to do next; a number does not.
+ */
+export const PATHWAYS: Record<GoalArea, string[]> = {
+  Housing: ["Assessed", "Application in", "On the list", "Viewing or offer", "Tenancy secured"],
+  Health: ["Not engaged", "Referral made", "First appointment", "Engaging regularly", "Self-managing"],
+  Documentation: ["Identified", "Applied for", "Received", "Complete"],
+  Benefits: ["Not claimed", "Application in", "Under review", "In payment"],
+  "Life skills": ["Assessed", "Learning with support", "Practising", "Independent"],
+  "Education & work": ["Exploring", "Applied", "Placed", "Sustaining"],
+};
 
 export const SERVICE = {
   name: "Cara House",
@@ -20,17 +36,19 @@ export const RESIDENTS: Resident[] = [
     keyWorker: "Aoife Brennan",
     rag: "amber",
     ragReason: "Alcohol use increasing over recent weeks",
-    moveOnProgress: 55,
+    moveOnBand: "building",
+    lastMovement: "Documentation completed, 12 Jun",
+    stalledFor: "9 weeks",
     admitted: "11 Mar 2026",
     priorities: ["Housing meeting with Limerick City Council on Tuesday", "Re-engage with GP after missed appointment"],
     nextAppointment: "Housing meeting, Tue 18 Aug, 11:00",
     riskSummary: "Moderate. Alcohol dependency, low mood following family bereavement last year.",
     riskUpdated: "4 Aug 2026",
     goals: [
-      { id: "md-g1", area: "Housing", label: "Social housing application with Limerick City Council", progress: 70, status: "on-track" },
-      { id: "md-g2", area: "Health", label: "Fortnightly GP engagement and alcohol support referral", progress: 40, status: "stalled" },
-      { id: "md-g3", area: "Documentation", label: "Replace lost birth certificate and PPS card", progress: 100, status: "achieved" },
-      { id: "md-g4", area: "Life skills", label: "Budgeting plan ahead of independent tenancy", progress: 50, status: "on-track" },
+      { id: "md-g1", area: "Housing", label: "Social housing application with Limerick City Council", stages: PATHWAYS.Housing, stageIndex: 2 },
+      { id: "md-g2", area: "Health", label: "Fortnightly GP engagement and alcohol support referral", stages: PATHWAYS.Health, stageIndex: 1, stalledFor: "3 weeks" },
+      { id: "md-g3", area: "Documentation", label: "Replace lost birth certificate and PPS card", stages: PATHWAYS.Documentation, stageIndex: 3 },
+      { id: "md-g4", area: "Life skills", label: "Budgeting plan ahead of independent tenancy", stages: PATHWAYS["Life skills"], stageIndex: 1 },
     ],
   },
   {
@@ -41,16 +59,17 @@ export const RESIDENTS: Resident[] = [
     keyWorker: "Aoife Brennan",
     rag: "green",
     ragReason: "Stable and engaging well",
-    moveOnProgress: 85,
+    moveOnBand: "ready",
+    lastMovement: "Viewing arranged, 14 Aug",
     admitted: "2 Dec 2025",
     priorities: ["HAP tenancy viewing on Thursday", "Confirm deposit support with council"],
     nextAppointment: "Tenancy viewing, Thu 20 Aug, 14:30",
     riskSummary: "Low. No current concerns. Historic self-harm, last episode over two years ago.",
     riskUpdated: "28 Jul 2026",
     goals: [
-      { id: "do-g1", area: "Housing", label: "Secure HAP tenancy and move-on plan", progress: 90, status: "on-track" },
-      { id: "do-g2", area: "Education & work", label: "Complete SOLAS safe pass course", progress: 100, status: "achieved" },
-      { id: "do-g3", area: "Life skills", label: "Independent cooking and tenancy management", progress: 80, status: "on-track" },
+      { id: "do-g1", area: "Housing", label: "Secure HAP tenancy and move-on plan", stages: PATHWAYS.Housing, stageIndex: 3 },
+      { id: "do-g2", area: "Education & work", label: "Complete SOLAS safe pass course", stages: PATHWAYS["Education & work"], stageIndex: 3 },
+      { id: "do-g3", area: "Life skills", label: "Independent cooking and tenancy management", stages: PATHWAYS["Life skills"], stageIndex: 2 },
     ],
   },
   {
@@ -61,16 +80,17 @@ export const RESIDENTS: Resident[] = [
     keyWorker: "Aoife Brennan",
     rag: "amber",
     ragReason: "HAP application stalled for 3 weeks",
-    moveOnProgress: 60,
+    moveOnBand: "building",
+    lastMovement: "Creche place confirmed, 15 Aug",
     admitted: "19 Jan 2026",
     priorities: ["Chase HAP application with council", "Creche place for Layla confirmed, start Monday"],
     nextAppointment: "Key working session, Wed 19 Aug, 10:00",
     riskSummary: "Low to moderate. Financial stress. Sole parent of one child.",
     riskUpdated: "10 Aug 2026",
     goals: [
-      { id: "ay-g1", area: "Housing", label: "HAP application and landlord search", progress: 45, status: "stalled" },
-      { id: "ay-g2", area: "Benefits", label: "One parent family payment review", progress: 75, status: "on-track" },
-      { id: "ay-g3", area: "Life skills", label: "English conversation classes twice weekly", progress: 65, status: "on-track" },
+      { id: "ay-g1", area: "Housing", label: "HAP application and landlord search", stages: PATHWAYS.Housing, stageIndex: 1, stalledFor: "3 weeks" },
+      { id: "ay-g2", area: "Benefits", label: "One parent family payment review", stages: PATHWAYS.Benefits, stageIndex: 2 },
+      { id: "ay-g3", area: "Life skills", label: "English conversation classes twice weekly", stages: PATHWAYS["Life skills"], stageIndex: 2 },
     ],
   },
   {
@@ -81,16 +101,18 @@ export const RESIDENTS: Resident[] = [
     keyWorker: "Aoife Brennan",
     rag: "amber",
     ragReason: "Missed two key working sessions in a row",
-    moveOnProgress: 30,
+    moveOnBand: "early",
+    lastMovement: "Youthreach application sent, 29 Jul",
+    stalledFor: "2 weeks",
     admitted: "6 Jun 2026",
     priorities: ["Re-engage after missed sessions", "Youth mental health referral pending"],
     nextAppointment: "Key working session, Mon 17 Aug, 16:00",
     riskSummary: "Moderate. Care leaver, low engagement, suspected cannabis use.",
     riskUpdated: "12 Aug 2026",
     goals: [
-      { id: "sf-g1", area: "Health", label: "Jigsaw youth mental health engagement", progress: 20, status: "stalled" },
-      { id: "sf-g2", area: "Education & work", label: "Youthreach placement application", progress: 35, status: "on-track" },
-      { id: "sf-g3", area: "Housing", label: "Long-term housing pathway assessment", progress: 25, status: "on-track" },
+      { id: "sf-g1", area: "Health", label: "Jigsaw youth mental health engagement", stages: PATHWAYS.Health, stageIndex: 1, stalledFor: "5 weeks" },
+      { id: "sf-g2", area: "Education & work", label: "Youthreach placement application", stages: PATHWAYS["Education & work"], stageIndex: 1 },
+      { id: "sf-g3", area: "Housing", label: "Long-term housing pathway assessment", stages: PATHWAYS.Housing, stageIndex: 0 },
     ],
   },
   {
@@ -101,15 +123,16 @@ export const RESIDENTS: Resident[] = [
     keyWorker: "Conor Lynch",
     rag: "red",
     ragReason: "Medication non-compliance, COPD deteriorating",
-    moveOnProgress: 25,
+    moveOnBand: "early",
+    lastMovement: "Clinic referral made, 5 Aug",
     admitted: "23 Sep 2025",
     priorities: ["Daily medication prompts", "Respiratory clinic referral"],
     nextAppointment: "Respiratory clinic, Fri 21 Aug, 09:15",
     riskSummary: "High. COPD with poor medication compliance. Falls risk.",
     riskUpdated: "15 Aug 2026",
     goals: [
-      { id: "pw-g1", area: "Health", label: "Stabilise COPD management with community nurse", progress: 30, status: "stalled" },
-      { id: "pw-g2", area: "Housing", label: "Supported housing referral for older persons service", progress: 40, status: "on-track" },
+      { id: "pw-g1", area: "Health", label: "Stabilise COPD management with community nurse", stages: PATHWAYS.Health, stageIndex: 2, stalledFor: "4 weeks" },
+      { id: "pw-g2", area: "Housing", label: "Supported housing referral for older persons service", stages: PATHWAYS.Housing, stageIndex: 1 },
     ],
   },
   {
@@ -120,15 +143,16 @@ export const RESIDENTS: Resident[] = [
     keyWorker: "Mary O'Sullivan",
     rag: "green",
     ragReason: "Engaging well, in part-time work",
-    moveOnProgress: 75,
+    moveOnBand: "nearly",
+    lastMovement: "Deposit target on track, 11 Aug",
     admitted: "14 Feb 2026",
     priorities: ["Save deposit, on target for October", "Rental viewings ongoing"],
     nextAppointment: "Key working session, Thu 20 Aug, 17:30",
     riskSummary: "Low. No current concerns.",
     riskUpdated: "1 Aug 2026",
     goals: [
-      { id: "jk-g1", area: "Education & work", label: "Sustain part-time warehouse role", progress: 90, status: "on-track" },
-      { id: "jk-g2", area: "Housing", label: "Private rental with rent supplement top-up", progress: 60, status: "on-track" },
+      { id: "jk-g1", area: "Education & work", label: "Sustain part-time warehouse role", stages: PATHWAYS["Education & work"], stageIndex: 3 },
+      { id: "jk-g2", area: "Housing", label: "Private rental with rent supplement top-up", stages: PATHWAYS.Housing, stageIndex: 2 },
     ],
   },
 ];

@@ -2,12 +2,45 @@ export type Rag = "green" | "amber" | "red";
 
 export type Role = "worker" | "manager";
 
+export type GoalArea =
+  | "Housing"
+  | "Health"
+  | "Benefits"
+  | "Life skills"
+  | "Documentation"
+  | "Education & work";
+
+/**
+ * Goals are tracked as named stages on a pathway, not as a percentage.
+ *
+ * A housing application is not "70% done"; it is at a stage, and the stage is
+ * what a worker can act on. Percentages here would invent a measurement the
+ * service does not take.
+ */
 export interface Goal {
   id: string;
-  area: "Housing" | "Health" | "Benefits" | "Life skills" | "Documentation" | "Education & work";
+  area: GoalArea;
   label: string;
-  progress: number; // 0-100
-  status: "on-track" | "stalled" | "achieved";
+  stages: string[];
+  /** Index into stages. The last stage means the goal is achieved. */
+  stageIndex: number;
+  /** Set when the goal has not moved for a while; the value is how long. */
+  stalledFor?: string;
+}
+
+/** Where a resident is on the journey out. A keyworker judgement, not a score. */
+export type MoveOnBand = "early" | "building" | "nearly" | "ready";
+
+export const MOVE_ON_LABEL: Record<MoveOnBand, string> = {
+  early: "Early stages",
+  building: "Building",
+  nearly: "Nearly ready",
+  ready: "Ready to move on",
+};
+
+export function goalStatus(goal: Goal): "achieved" | "stalled" | "on-track" {
+  if (goal.stageIndex >= goal.stages.length - 1) return "achieved";
+  return goal.stalledFor ? "stalled" : "on-track";
 }
 
 export interface ActionItem {
@@ -41,7 +74,11 @@ export interface Resident {
   keyWorker: string;
   rag: Rag;
   ragReason: string;
-  moveOnProgress: number; // 0-100 towards independent living
+  moveOnBand: MoveOnBand;
+  /** When something on this resident's plan last moved forward. */
+  lastMovement: string;
+  /** Set when nothing has moved for a while. Drives the manager's attention. */
+  stalledFor?: string;
   admitted: string;
   priorities: string[];
   nextAppointment: string;

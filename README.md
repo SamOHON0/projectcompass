@@ -30,22 +30,7 @@ Answers questions about a resident's history, risk, goals and next steps. Three 
 - Answers change as the record changes, which is why step 4 above matters.
 - Ask something outside the record and it says so rather than inventing an answer.
 
-### Live mode
-
-Ask Compass runs against a real model when `ANTHROPIC_API_KEY` is set, and falls back to prepared answers when it is not. A deployment with no key still demos end to end, so the walkthrough never depends on the network.
-
-Set up:
-
-1. Add `ANTHROPIC_API_KEY` in Vercel under Settings, Environment Variables. Locally, put it in `.env.local`, which is gitignored. See `.env.example`.
-2. Redeploy. A **Live** badge appears on the Ask Compass panel when the key is found.
-
-What keeps it grounded: `src/lib/briefing.ts` builds the system prompt from the same data the UI renders, plus a written case background per resident. The model is told to answer only from that briefing, cite what it used, refuse to invent, use trauma-informed language, and never give clinical advice. Questions are wrapped in tags so instructions inside a question are treated as text, not commands.
-
-Cost and abuse controls are in `src/app/api/ask/route.ts`: the key stays server-side, 8 questions per IP per 10 minutes, a daily ceiling across all visitors (`COMPASS_DAILY_MAX`, default 200), a 300 character question cap and a 25 second timeout. The counters are in-process, so on serverless they are per instance rather than global. That is enough to stop casual abuse and runaway cost; a production build would move them to Redis or Vercel KV.
-
-The default model is `claude-haiku-4-5`, chosen for speed and cost on short grounded answers. Override with `COMPASS_MODEL`.
-
-The case note pipeline in `src/lib/ai.ts` stays deterministic, so the core demo tells the same story every time.
+The intelligence is simulated (deterministic, no API calls) so the demo always tells the same story. In production this layer would be a model call grounded in the resident's record, the service's policies, and the staff member's permissions. `src/lib/assistant.ts` and `src/lib/ai.ts` are the only files that would change.
 
 ## Run locally
 
@@ -73,7 +58,6 @@ Push to GitHub, then import the repo in Vercel. No environment variables, no dat
 
 ```bash
 npm install
-npx playwright install chromium   # once, for the browser-based checks
 npm run verify
 ```
 
@@ -90,6 +74,20 @@ npm run verify
 `scripts/` is developer tooling and is not part of the deployed app. The flow test covers the cross-role loop: the assistant answering and then changing its answer, the case note pipeline, the language suggestion rewriting the note, risk and handover fan-out, the incident report gating submission until a human completes it, the manager drill-down through to sign-off, plus Escape, focus return, and the skip link.
 
 The accessibility checks are hand-written because axe-core is not reachable from the build sandbox. They are not a substitute for a full axe run or for testing with a real screen reader.
+
+## Why goals show stages, not percentages
+
+A housing application is not "70% done", it is at a stage: assessed, application in, on the list, viewing
+or offer, tenancy secured. Percentages here would invent a measurement the service never takes, and the
+first thing a practitioner asks about a number like that is where it came from.
+
+So goals are shown as a position on a named pathway (`PATHWAYS` in `src/lib/data.ts`), the current stage
+is called out in words, and the panel says what the next stage is. Move-on readiness is a band, which is
+a keyworker judgement, backed by countable facts: how many goals are achieved, progressing or stalled.
+
+The manager view sorts by what has stopped moving rather than by position, because Bill asked to see
+"whether residents are progressing and where cases may have stalled". A resident stuck at an early stage
+for nine weeks needs attention more than one further along and still moving.
 
 ## Demo safeguards
 

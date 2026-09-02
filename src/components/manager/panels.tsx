@@ -3,6 +3,7 @@
 import { useCompass } from "@/lib/store";
 import { NewPill, RagPill } from "@/components/Badges";
 import { INCIDENT_TREND, MANAGER_OUTSTANDING, SERVICE, STAFF_OPS } from "@/lib/data";
+import { MOVE_ON_LABEL, goalStatus } from "@/lib/types";
 
 export function ServiceOverview() {
   const { residents, alerts } = useCompass();
@@ -10,6 +11,12 @@ export function ServiceOverview() {
   const amber = residents.filter((r) => r.rag === "amber").length;
   const red = residents.filter((r) => r.rag === "red").length;
   const awaiting = alerts.filter((a) => a.status === "awaiting-review").length;
+  const stalled = residents.filter((r) => r.stalledFor).length;
+  const moving = residents.length - stalled;
+  const longestStall = residents
+    .filter((r) => r.stalledFor)
+    .map((r) => r.stalledFor as string)
+    .sort((a, b) => (parseInt(b, 10) || 0) - (parseInt(a, 10) || 0))[0];
 
   return (
     <div className="stat-row">
@@ -40,9 +47,13 @@ export function ServiceOverview() {
         <div className="delta delta-warn">Incident report pending sign-off</div>
       </div>
       <div className="stat">
-        <div className="num">68%</div>
-        <div className="lbl">Residents progressing to move-on</div>
-        <div className="delta delta-good">Up from 61% last quarter</div>
+        <div className="num">
+          {moving} of {residents.length}
+        </div>
+        <div className="lbl">Residents whose plans are moving</div>
+        <div className={`delta ${stalled > 0 ? "delta-warn" : "delta-good"}`}>
+          {stalled > 0 ? `${stalled} stalled, longest ${longestStall}` : "None stalled"}
+        </div>
       </div>
     </div>
   );
@@ -195,31 +206,57 @@ export function HandoverOverview() {
   );
 }
 
+/**
+ * Bill asked to see "whether residents are progressing and where cases may have
+ * stalled". Position alone cannot answer that, so this sorts by what has stopped
+ * moving and leads with how long it has been stuck.
+ */
 export function ClientProgress({ onOpenResident }: { onOpenResident?: (id: string) => void }) {
   const { residents } = useCompass();
+  const weeks = (r: { stalledFor?: string }) => (r.stalledFor ? parseInt(r.stalledFor, 10) || 1 : 0);
+  const ordered = [...residents].sort((a, b) => weeks(b) - weeks(a));
+  const stalledCount = ordered.filter((r) => r.stalledFor).length;
+
   return (
     <section className="card">
       <div className="card-head">
         <h2>Client progress</h2>
-        <span className="sub">move-on readiness across the service</span>
+        <span className="sub">what is moving, and what has stopped</span>
+        <span className="count">{stalledCount} stalled</span>
       </div>
       <div className="card-body">
         <div className="row-list">
-          {[...residents]
-            .sort((a, b) => b.moveOnProgress - a.moveOnProgress)
-            .map((r) => (
+          {ordered.map((r) => {
+            const stalledGoals = r.goals.filter((g) => goalStatus(g) === "stalled").length;
+            return (
               <button className="row row-button" key={r.id} onClick={() => onOpenResident?.(r.id)}>
                 <div className="row-main">
-                  <div className="row-title" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <div className="row-title" style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                     {r.name} <RagPill rag={r.rag} />
+                    <span className={`band band-${r.moveOnBand}`}>{MOVE_ON_LABEL[r.moveOnBand]}</span>
                   </div>
-                  <div className="meter" style={{ marginTop: 6, maxWidth: 340 }}>
-                    <span style={{ width: `${r.moveOnProgress}%` }} />
+                  <div className="row-sub">
+                    {stalledGoals > 0
+                      ? `${stalledGoals} of ${r.goals.length} goals stalled`
+                      : `All ${r.goals.length} goals moving`}
+                    {" · "}
+                    {r.lastMovement}
                   </div>
                 </div>
-                <span className="row-meta">{r.moveOnProgress}%</span>
+                <span className="row-right">
+                  {r.stalledFor ? (
+                    <span className="pill pill-amber">Stalled {r.stalledFor}</span>
+                  ) : stalledGoals > 0 ? (
+                    <span className="pill pill-amber">
+                      {stalledGoals} goal{stalledGoals > 1 ? "s" : ""} stuck
+                    </span>
+                  ) : (
+                    <span className="pill pill-green">Moving</span>
+                  )}
+                </span>
               </button>
-            ))}
+            );
+          })}
         </div>
       </div>
     </section>

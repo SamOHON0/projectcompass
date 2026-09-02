@@ -4,6 +4,8 @@ import { useCompass } from "@/lib/store";
 import { RagPill } from "@/components/Badges";
 import AskCompass from "@/components/AskCompass";
 import Modal from "@/components/Modal";
+import GoalPathway from "@/components/GoalPathway";
+import { MoveOnSummary } from "@/components/worker/panels";
 
 export default function ResidentDrawer({
   residentId,
@@ -72,35 +74,13 @@ export default function ResidentDrawer({
             </>
           )}
 
-          <div className="section-label">Independent living progress</div>
-          <div className="goal-row">
-            <div className="goal-row-top">
-              <span className="goal-label">Overall move-on readiness</span>
-              <span className="goal-pct">{resident.moveOnProgress}%</span>
-            </div>
-            <div className="meter">
-              <span style={{ width: `${resident.moveOnProgress}%` }} />
-            </div>
-          </div>
-          <div className="row-list">
+          <div className="section-label">Independent living</div>
+          <MoveOnSummary resident={resident} />
+
+          <div className="section-label">Support plan goals</div>
+          <div className="goal-list">
             {resident.goals.map((g) => (
-              <div className="goal-row" key={g.id}>
-                <div className="goal-row-top">
-                  <span className="goal-area">{g.area}</span>
-                  <span className="goal-label">{g.label}</span>
-                  <span className="goal-pct">
-                    {g.status === "achieved" ? "Achieved" : g.status === "stalled" ? "Stalled" : `${g.progress}%`}
-                  </span>
-                </div>
-                <div className="meter">
-                  <span
-                    style={{
-                      width: `${g.progress}%`,
-                      background: g.status === "stalled" ? "var(--amber)" : "var(--accent)",
-                    }}
-                  />
-                </div>
-              </div>
+              <GoalPathway goal={g} key={g.id} />
             ))}
           </div>
 

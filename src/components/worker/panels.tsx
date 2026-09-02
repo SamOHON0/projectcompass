@@ -2,6 +2,8 @@
 
 import { useCompass } from "@/lib/store";
 import { NewPill, RagPill } from "@/components/Badges";
+import GoalPathway from "@/components/GoalPathway";
+import { MOVE_ON_LABEL, goalStatus } from "@/lib/types";
 import type { Resident } from "@/lib/types";
 
 export function HandoverPanel() {
@@ -148,37 +150,13 @@ export function ResidentDetail({ resident, onOpenNote }: { resident: Resident; o
           <div className="risk-when">Last updated {resident.riskUpdated}</div>
         </div>
 
-        <div className="section-label">Independent living progress</div>
-        <div className="goal-row">
-          <div className="goal-row-top">
-            <span className="goal-label">Overall move-on readiness</span>
-            <span className="goal-pct">{resident.moveOnProgress}%</span>
-          </div>
-          <div className="meter">
-            <span style={{ width: `${resident.moveOnProgress}%` }} />
-          </div>
-        </div>
+        <div className="section-label">Independent living</div>
+        <MoveOnSummary resident={resident} />
 
         <div className="section-label">Support plan goals</div>
-        <div className="row-list">
+        <div className="goal-list">
           {resident.goals.map((g) => (
-            <div className="goal-row" key={g.id}>
-              <div className="goal-row-top">
-                <span className="goal-area">{g.area}</span>
-                <span className="goal-label">{g.label}</span>
-                <span className="goal-pct">
-                  {g.status === "achieved" ? "Achieved" : g.status === "stalled" ? "Stalled" : `${g.progress}%`}
-                </span>
-              </div>
-              <div className="meter">
-                <span
-                  style={{
-                    width: `${g.progress}%`,
-                    background: g.status === "stalled" ? "var(--amber)" : "var(--accent)",
-                  }}
-                />
-              </div>
-            </div>
+            <GoalPathway goal={g} key={g.id} />
           ))}
         </div>
 
@@ -211,5 +189,35 @@ export function ResidentDetail({ resident, onOpenNote }: { resident: Resident; o
         </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * Where the resident is on the way out, as a band plus the counts behind it.
+ *
+ * The band is a keyworker judgement, which is how services actually record it.
+ * The counts underneath are the checkable facts that justify it.
+ */
+export function MoveOnSummary({ resident }: { resident: Resident }) {
+  const achieved = resident.goals.filter((g) => goalStatus(g) === "achieved").length;
+  const stalled = resident.goals.filter((g) => goalStatus(g) === "stalled").length;
+  const moving = resident.goals.length - achieved - stalled;
+
+  return (
+    <div className="moveon">
+      <span className={`band band-${resident.moveOnBand}`}>{MOVE_ON_LABEL[resident.moveOnBand]}</span>
+      <span className="moveon-counts">
+        {achieved > 0 && <>{achieved} achieved · </>}
+        {moving} progressing
+        {stalled > 0 && <> · {stalled} stalled</>}
+      </span>
+      <span className="moveon-move">
+        {resident.stalledFor ? (
+          <span className="moveon-stalled">Nothing moved for {resident.stalledFor}</span>
+        ) : (
+          <>Last moved: {resident.lastMovement}</>
+        )}
+      </span>
+    </div>
   );
 }

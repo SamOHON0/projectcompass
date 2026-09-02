@@ -1118,3 +1118,124 @@ main:focus { outline: none; }
   border-left: 2px solid var(--amber);
   font-size: 12px;
 }
+
+
+/* ---------- Goal pathways ---------- */
+
+.goal-list { display: grid; gap: 18px; margin-top: 4px; }
+
+.goal-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.goal-head .goal-label { font-size: 13.5px; color: var(--ink-soft); flex: 1; min-width: 180px; }
+
+/* Stages sit on one track: a filled marker for what is done, a ring for where
+   the case is now, a hollow marker for what is still ahead. */
+.steps {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.step {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  padding-top: 14px;
+  padding-right: 8px;
+}
+
+/* the connecting track */
+.step::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--line);
+}
+
+.step:first-child::before { left: 4px; }
+.step:last-child::before { right: calc(100% - 6px); }
+
+.step-done::before, .step-current::before { background: var(--accent); }
+.steps-stalled .step-done::before, .steps-stalled .step-current::before { background: var(--amber); }
+
+.step-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--line-strong);
+  background: var(--surface);
+}
+
+.step-done .step-mark { background: var(--accent); border-color: var(--accent); }
+
+.step-current .step-mark {
+  background: var(--surface);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.steps-stalled .step-done .step-mark { background: var(--amber); border-color: var(--amber); }
+.steps-stalled .step-current .step-mark { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-soft); }
+.steps-achieved .step-current .step-mark { background: var(--green); border-color: var(--green); box-shadow: none; }
+.steps-achieved .step-done .step-mark { background: var(--green); border-color: var(--green); }
+.steps-achieved .step-done::before, .steps-achieved .step-current::before { background: var(--green); }
+
+.step-name {
+  display: block;
+  font-size: 11.5px;
+  line-height: 1.3;
+  color: var(--ink-faint);
+}
+
+.step-current .step-name { color: var(--ink); font-weight: 700; }
+.step-done .step-name { color: var(--ink-soft); }
+
+.goal-now { margin: 8px 0 0; font-size: 13px; color: var(--ink-soft); }
+.goal-now strong { color: var(--ink); }
+
+/* ---------- Move-on band ---------- */
+
+.moveon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 0 2px;
+}
+
+.band {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px 9px;
+  border: 1px solid;
+  border-radius: var(--radius-control);
+}
+
+.band-early { color: var(--ink-soft); border-color: var(--line-strong); background: var(--surface-soft); }
+.band-building { color: var(--accent-ink); border-color: var(--accent); background: var(--accent-soft); }
+.band-nearly { color: var(--accent-ink); border-color: var(--accent); background: var(--accent-soft); }
+.band-ready { color: var(--green); border-color: var(--green); background: var(--green-soft); }
+
+.moveon-counts { font-size: 13px; color: var(--ink-soft); }
+.moveon-move { font-size: 12.5px; color: var(--ink-faint); margin-left: auto; }
+.moveon-stalled { color: var(--amber); font-weight: 700; }
+
+@media (max-width: 860px) {
+  .steps { flex-wrap: wrap; gap: 6px 0; }
+  .step { flex: 1 1 45%; }
+  .moveon-move { margin-left: 0; flex-basis: 100%; }
+}
