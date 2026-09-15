@@ -133,3 +133,26 @@ export interface ManagerAlert {
   residentId?: string;
   incidentId?: string;
 }
+
+/**
+ * A routine, mandatory task that sits alongside case management: wellbeing
+ * checks, the bedlist, fire checks for a worker; the relief tracker, the
+ * occupancy return, the alarm test for a manager. Bill asked for these because
+ * they are the other half of a shift, and staff should not have to keep them in
+ * their heads or on a separate sheet.
+ */
+export interface DailyTask {
+  id: string;
+  role: Role;
+  /** When it is due, as staff would say it: "09:00", "By 14:00". */
+  time: string;
+  label: string;
+  detail: string;
+  /** Shown instead of detail once the task is done, e.g. "Sent 09:48". */
+  doneDetail?: string;
+  /** The state while not done. "overdue" is what the service calls outstanding. */
+  status: "due" | "overdue" | "later";
+  done: boolean;
+  /** A line Compass adds once the incident has been recorded this shift. */
+  compassNoteAfterIncident?: string;
+}

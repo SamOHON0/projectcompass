@@ -2,12 +2,14 @@
 
 Concept prototype for Project Compass: an intelligent colleague for frontline homelessness services. Built by SquareTwo. All residents, staff and events are fictional.
 
+The setting is Tina House, an 18-bed service in Portlaoise. Farlen is the Project Worker on shift and Brian is the Manager. Bill chose those names (his late mother, sister and brother) so the story is personal to tell while staying obviously invented; they live in `SERVICE` in `src/lib/data.ts` and nowhere else.
+
 ## What it demonstrates
 
 Two role-based views drawing from one shared source of information:
 
-- **Project Worker view** (`/worker`): tailored handover, My Clients caseload, resident profile with goals and independent living progress, actions due, Ask Compass, and the Smart Case Note.
-- **Manager view** (`/manager`): RAG service overview, critical updates, outstanding actions, incident trends with Compass insights, handover overview, client progress, and staff/operational prompts. Alerts and residents open the full record.
+- **Project Worker view** (`/worker`): handover cut to this shift, My Clients caseload, resident profile with goals and independent living progress, actions due, daily tasks (wellbeing rounds, bedlist, laundry and fire checks), Ask Compass, and the Smart Case Note.
+- **Manager view** (`/manager`): RAG service overview, critical updates, outstanding actions, the manager's own daily tasks (relief tracker, occupancy return, alarm test), incident trends with Compass insights, handover overview, client progress, and staff/operational prompts. Alerts and residents open the full record.
 
 ### The demo story
 
@@ -15,12 +17,24 @@ Run it in this order. It takes about two minutes and shows one piece of frontlin
 
 1. **Worker view.** Ask Compass "Catch me up on Michael". Note the answer cites what it drew on.
 2. **New smart case note** → **Insert example note** → **Process with Compass**. Compass structures the note, suggests trauma-informed wording ("got aggressive" becomes "became verbally agitated and raised his voice"), and lists what it has prepared. Apply the suggestion, then approve.
-3. **Back on the worker view**, Michael is now Red, three new actions exist, the handover is written, and an incident report is waiting.
+3. **Back on the worker view**, Michael is now Red, three new actions exist, the handover is written, an incident report is waiting, and the 15:00 wellbeing round now carries a Compass note to start with Room 4.
 4. **Ask Compass "What are the risks right now?"** The answer has changed, because the record has.
 5. **Open draft report.** Compass has filled nine fields from the note and deliberately left two: who else was present, and the resident's own words. Submitting is blocked until a human fills them.
 6. **Switch to Manager.** The incident is on the dashboard, the Red count has moved, and the handover is updated. Click the alert to open Michael's record, then the incident report, and sign it off.
 
 The point of step 5 is that Compass drafts, a person decides. Every field is labelled "Compass drafted" or "You added this".
+
+### Daily tasks
+
+Both views carry a small **Daily tasks** card: the routine, mandatory side of a shift that sits alongside case management and is usually kept on a sheet or in someone's head. Farlen's list is Bill's almost verbatim (09:00, 15:00 and 22:00 wellbeing checks, the 10:00 bedlist, laundry and fire checks). Brian's holds the relief tracker, the PASS occupancy return, the weekly alarm test and countersigning notes. Each shows as done, due, outstanding or later, and can be ticked. It is deliberately small so it does not compete with the caseload.
+
+### The handover, cut to the shift
+
+Farlen's handover shows the entries Compass picked for her shift first, each with the reason (your client, action due today, whole building), and the rest of the service behind one click. Brian sees every entry, ordered risk first. Same list, two cuts.
+
+### Trauma-informed wording
+
+The case note pipeline checks language against trauma-informed principles and shows the suggestion as a before-and-after with its reason: describe the behaviour, never label the person, and keep the facts exactly as recorded. The worker chooses whether to apply it. Ask Compass follows the same rule in its own answers.
 
 ### Ask Compass
 

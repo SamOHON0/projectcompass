@@ -13,6 +13,7 @@ import {
 } from "@/components/manager/panels";
 import ResidentDrawer from "@/components/manager/ResidentDrawer";
 import IncidentReport from "@/components/IncidentReport";
+import DailyTasks from "@/components/DailyTasks";
 import { useCompass } from "@/lib/store";
 import { SERVICE } from "@/lib/data";
 
@@ -27,7 +28,7 @@ export default function ManagerPage() {
     <AppShell role="manager">
       <main className="page" id="main" tabIndex={-1}>
         <div className="page-head">
-          <h1>Good afternoon, Niamh</h1>
+          <h1>Good afternoon, {SERVICE.managerName}</h1>
           <p>
             Monday 17 August · {SERVICE.name} ·{" "}
             {fresh
@@ -50,6 +51,7 @@ export default function ManagerPage() {
             </div>
             <div className="stack">
               <OutstandingActions />
+              <DailyTasks role="manager" />
               <IncidentTrend />
               <StaffOps />
             </div>

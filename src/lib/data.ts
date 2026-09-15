@@ -1,4 +1,4 @@
-import type { ActionItem, CaseNote, GoalArea, HandoverItem, ManagerAlert, Resident } from "./types";
+import type { ActionItem, CaseNote, DailyTask, GoalArea, HandoverItem, ManagerAlert, Resident } from "./types";
 
 // All data in this file is fictional sample data for the prototype.
 
@@ -18,13 +18,20 @@ export const PATHWAYS: Record<GoalArea, string[]> = {
   "Education & work": ["Exploring", "Applied", "Placed", "Sustaining"],
 };
 
+/**
+ * The fictional setting. Bill chose these names: Tina House after his late
+ * mother, and Farlen and Brian after his sister and brother, so the story is
+ * personal to tell while staying obviously invented. No resident is real.
+ */
 export const SERVICE = {
-  name: "Cara House",
-  location: "Limerick",
+  name: "Tina House",
+  location: "Portlaoise",
   beds: 18,
   occupied: 17,
-  workerName: "Aoife Brennan",
-  managerName: "Niamh Kavanagh",
+  workerName: "Farlen",
+  workerRole: "Project Worker",
+  managerName: "Brian",
+  managerRole: "Manager",
 };
 
 export const RESIDENTS: Resident[] = [
@@ -33,19 +40,19 @@ export const RESIDENTS: Resident[] = [
     name: "Michael Doyle",
     age: 47,
     room: "Room 4",
-    keyWorker: "Aoife Brennan",
+    keyWorker: SERVICE.workerName,
     rag: "amber",
     ragReason: "Alcohol use increasing over recent weeks",
     moveOnBand: "building",
     lastMovement: "Documentation completed, 12 Jun",
     stalledFor: "9 weeks",
     admitted: "11 Mar 2026",
-    priorities: ["Housing meeting with Limerick City Council on Tuesday", "Re-engage with GP after missed appointment"],
+    priorities: ["Housing meeting with Laois County Council on Tuesday", "Re-engage with GP after missed appointment"],
     nextAppointment: "Housing meeting, Tue 18 Aug, 11:00",
     riskSummary: "Moderate. Alcohol dependency, low mood following family bereavement last year.",
     riskUpdated: "4 Aug 2026",
     goals: [
-      { id: "md-g1", area: "Housing", label: "Social housing application with Limerick City Council", stages: PATHWAYS.Housing, stageIndex: 2 },
+      { id: "md-g1", area: "Housing", label: "Social housing application with Laois County Council", stages: PATHWAYS.Housing, stageIndex: 2 },
       { id: "md-g2", area: "Health", label: "Fortnightly GP engagement and alcohol support referral", stages: PATHWAYS.Health, stageIndex: 1, stalledFor: "3 weeks" },
       { id: "md-g3", area: "Documentation", label: "Replace lost birth certificate and PPS card", stages: PATHWAYS.Documentation, stageIndex: 3 },
       { id: "md-g4", area: "Life skills", label: "Budgeting plan ahead of independent tenancy", stages: PATHWAYS["Life skills"], stageIndex: 1 },
@@ -56,7 +63,7 @@ export const RESIDENTS: Resident[] = [
     name: "Dara Ó Ceallaigh",
     age: 29,
     room: "Room 11",
-    keyWorker: "Aoife Brennan",
+    keyWorker: SERVICE.workerName,
     rag: "green",
     ragReason: "Stable and engaging well",
     moveOnBand: "ready",
@@ -77,7 +84,7 @@ export const RESIDENTS: Resident[] = [
     name: "Amina Yusuf",
     age: 34,
     room: "Room 7",
-    keyWorker: "Aoife Brennan",
+    keyWorker: SERVICE.workerName,
     rag: "amber",
     ragReason: "HAP application stalled for 3 weeks",
     moveOnBand: "building",
@@ -98,7 +105,7 @@ export const RESIDENTS: Resident[] = [
     name: "Sean Fitzpatrick",
     age: 24,
     room: "Room 15",
-    keyWorker: "Aoife Brennan",
+    keyWorker: SERVICE.workerName,
     rag: "amber",
     ragReason: "Missed two key working sessions in a row",
     moveOnBand: "early",
@@ -179,7 +186,7 @@ export const INITIAL_NOTES: CaseNote[] = [
   {
     id: "n2",
     residentId: "dara-o-ceallaigh",
-    author: "Aoife Brennan",
+    author: SERVICE.workerName,
     when: "Fri 14 Aug, 15:10",
     type: "Key working session",
     summary: "Reviewed move-on plan. Dara confident ahead of Thursday viewing. Deposit support confirmed.",
@@ -192,6 +199,9 @@ export const INITIAL_HANDOVER: HandoverItem[] = [
   { id: "h1", residentId: "michael-doyle", text: "Michael declined dinner Sunday evening and appeared low. Worth a check-in early in your shift.", tone: "attention", when: "Overnight" },
   { id: "h2", residentId: "patricia-whelan", text: "Patricia took morning medications with prompting. Community nurse visiting Wednesday.", tone: "info", when: "This morning" },
   { id: "h3", residentId: "sean-fitzpatrick", text: "Sean back in the building at 02:15, no concerns raised. Reminder his key working session is today at 16:00.", tone: "info", when: "Overnight" },
+  { id: "h4", residentId: null, text: "Fire panel showed a fault on zone 2 overnight, cleared by 06:30. Engineer booked for Tuesday morning. Include the top-floor exits in today's fire checks.", tone: "attention", when: "Overnight" },
+  { id: "h5", residentId: "josip-kovac", text: "Josip on a late shift Tuesday and will miss dinner. Plate to be kept.", tone: "info", when: "This morning" },
+  { id: "h6", residentId: null, text: "Room 6 deep-cleaned after Friday's move-out and ready for admission. Bedlist updated.", tone: "info", when: "This morning" },
 ];
 
 export const INITIAL_ALERTS: ManagerAlert[] = [
@@ -211,6 +221,26 @@ export const INITIAL_ALERTS: ManagerAlert[] = [
     when: "Sat 15 Aug",
     status: "acknowledged",
   },
+];
+
+/**
+ * Routine mandatory tasks for the shift, per role. Bill's list for the worker
+ * is used almost verbatim. The manager's includes the relief tracker, which he
+ * named, plus the returns and checks a service manager actually carries.
+ * It is mid-afternoon on the demo day, so the morning tasks are done.
+ */
+export const DAILY_TASKS: DailyTask[] = [
+  { id: "w1", role: "worker", time: "09:00", label: "Resident wellbeing checks", detail: "Every resident seen or accounted for", doneDetail: "17 of 17 residents seen, completed 09:35", status: "due", done: true },
+  { id: "w2", role: "worker", time: "10:00", label: "Email bedlist", detail: "Occupancy and voids to the placement team", doneDetail: "Sent 09:48, one void (Room 6)", status: "due", done: true },
+  { id: "w3", role: "worker", time: "By 14:00", label: "Laundry check", detail: "Rooms 7 and 11 on today's rota", status: "overdue", done: false },
+  { id: "w4", role: "worker", time: "By 17:00", label: "Fire checks", detail: "Exits, extinguishers and call points. See handover: top-floor exits after last night's panel fault", status: "due", done: false },
+  { id: "w5", role: "worker", time: "15:00", label: "Resident wellbeing checks", detail: "Afternoon round", status: "due", done: false, compassNoteAfterIncident: "Michael is Red since 14:00. Start with Room 4 and record what you find." },
+  { id: "w6", role: "worker", time: "22:00", label: "Resident wellbeing checks", detail: "Night round, handed to the night team", status: "later", done: false },
+  { id: "m1", role: "manager", time: "09:00", label: "Handover meeting with day team", detail: "Overnight log and priorities for the day", doneDetail: "Held 09:05, four staff present", status: "due", done: true },
+  { id: "m2", role: "manager", time: "10:30", label: "PASS occupancy return", detail: "Daily bed return to the local authority", doneDetail: "17 of 18 submitted 10:22", status: "due", done: true },
+  { id: "m3", role: "manager", time: "Today", label: "Relief tracker", detail: "Confirm relief cover for Wednesday and Thursday nights, log last week's agency hours", status: "overdue", done: false },
+  { id: "m4", role: "manager", time: "Mondays", label: "Weekly fire alarm test", detail: "Panel test and log. Zone 2 fault overnight, engineer Tuesday. Quarterly drill is also overdue", status: "due", done: false },
+  { id: "m5", role: "manager", time: "16:30", label: "Sign off day team case notes", detail: "Review and countersign before the late shift", status: "later", done: false },
 ];
 
 export const MANAGER_OUTSTANDING = [

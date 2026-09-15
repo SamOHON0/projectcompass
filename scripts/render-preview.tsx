@@ -14,6 +14,7 @@ import IncidentReport from "@/components/IncidentReport";
 import ResidentDrawer from "@/components/manager/ResidentDrawer";
 import { CompassProvider } from "@/lib/store";
 import { draftIncidentFields } from "@/lib/ai";
+import { SERVICE } from "@/lib/data";
 import type { IncidentRecord } from "@/lib/types";
 
 const demoIncident = (status: IncidentRecord["status"]): IncidentRecord => {
@@ -27,14 +28,14 @@ const demoIncident = (status: IncidentRecord["status"]): IncidentRecord => {
     id: "demo-incident",
     ref: "INC-2026-042",
     residentId: "michael-doyle",
-    raisedBy: "Aoife Brennan",
+    raisedBy: SERVICE.workerName,
     raisedAt: "Today, 14:20",
     status,
     fields,
-    signedBy: status === "signed" ? "Niamh Kavanagh" : undefined,
+    signedBy: status === "signed" ? SERVICE.managerName : undefined,
     signedAt: status === "signed" ? "Today" : undefined,
     managerNote:
-      status === "signed" ? "Debrief with Aoife at handover. Risk review to be completed within 24 hours." : undefined,
+      status === "signed" ? `Debrief with ${SERVICE.workerName} at handover. Risk review to be completed within 24 hours.` : undefined,
   };
 };
 

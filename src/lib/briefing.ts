@@ -1,4 +1,4 @@
-import { INITIAL_ACTIONS, INITIAL_HANDOVER, INITIAL_NOTES, RESIDENTS, SERVICE } from "./data";
+import { DAILY_TASKS, INITIAL_ACTIONS, INITIAL_HANDOVER, INITIAL_NOTES, RESIDENTS, SERVICE } from "./data";
 import { MOVE_ON_LABEL, goalStatus } from "./types";
 
 /**
@@ -162,7 +162,7 @@ export function buildBriefing(incidentRecorded: boolean): string {
   const shift = incidentRecorded
     ? `
 An incident has been recorded during the current shift and the record now reflects it:
-at 14:00 today Aoife Brennan completed a welfare check on Michael Doyle. He was intoxicated and became
+at 14:00 today ${SERVICE.workerName} completed a welfare check on Michael Doyle. He was intoxicated and became
 verbally agitated when asked about the missed GP appointment. No threats, no physical contact; the
 situation de-escalated and he accepted a cup of tea in the communal kitchen. He reports drinking since
 Thursday following difficult news about his brother, and says he will not attend tomorrow's council
@@ -179,11 +179,16 @@ accommodation service in ${SERVICE.location} working with people who have experi
 ${SERVICE.occupied} of ${SERVICE.beds} beds are occupied.
 
 Today is Monday 17 August 2026, mid-afternoon.
-Staff on shift: ${SERVICE.workerName} (Project Worker), ${SERVICE.managerName} (Deputy Manager).
+Staff on shift: ${SERVICE.workerName} (${SERVICE.workerRole}), ${SERVICE.managerName} (${SERVICE.managerRole}).
 Other staff referred to in records: Conor Lynch and Mary O'Sullivan (Project Workers).
 
 ## Current shift
 ${shift}
+
+## ${SERVICE.workerName}'s routine tasks today
+${DAILY_TASKS.filter((t) => t.role === "worker")
+  .map((t) => `- ${t.time}: ${t.label}, ${t.done ? "done" : t.status === "overdue" ? "outstanding" : t.status}`)
+  .join("\n")}
 
 ## Resident records
 ${RESIDENTS.map((r) => residentBlock(r.id)).join("\n")}

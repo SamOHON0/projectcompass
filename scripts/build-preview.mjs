@@ -23,7 +23,14 @@ run("npx", ["tsx", "--tsconfig", "scripts/tsconfig.json", "scripts/render-previe
 // esbuild ships inside tsx, so the harness needs no extra dependency. Prefer a
 // project-local install, fall back to the copy nested under tsx.
 function resolveEsbuild() {
+  // On Windows the .bin shim is a shell script, which spawnSync cannot run
+  // without a shell, so prefer the native binary that the esbuild package
+  // installs for this platform.
+  const native = `${process.platform}-${process.arch}`;
+  const exe = process.platform === "win32" ? "esbuild.exe" : "bin/esbuild";
   const candidates = [
+    join(root, "node_modules", "@esbuild", native, exe),
+    join(root, "node_modules", "tsx", "node_modules", "@esbuild", native, exe),
     join(root, "node_modules", ".bin", "esbuild"),
     join(root, "node_modules", "tsx", "node_modules", ".bin", "esbuild"),
   ];

@@ -6,6 +6,7 @@ import { ActionsPanel, ClientGrid, HandoverPanel, ResidentDetail } from "@/compo
 import SmartCaseNote from "@/components/worker/SmartCaseNote";
 import AskCompass from "@/components/AskCompass";
 import IncidentReport from "@/components/IncidentReport";
+import DailyTasks from "@/components/DailyTasks";
 import { useCompass } from "@/lib/store";
 import { SERVICE } from "@/lib/data";
 
@@ -22,7 +23,7 @@ export default function WorkerPage() {
       <main className="page" id="main" tabIndex={-1}>
         <div className="page-head page-head-row">
           <div>
-            <h1>Good afternoon, Aoife</h1>
+            <h1>Good afternoon, {SERVICE.workerName}</h1>
             <p>
               Monday 17 August · {SERVICE.name} · 4 clients on your caseload ·{" "}
               {demoRan ? "1 incident recorded this shift" : "nothing urgent flagged since 07:00"}
@@ -51,6 +52,7 @@ export default function WorkerPage() {
           </div>
           <div className="stack">
             <ActionsPanel onOpenIncident={activeIncident ? () => setIncidentOpen(true) : undefined} />
+            <DailyTasks role="worker" />
             {selected && <AskCompass resident={selected} />}
           </div>
         </div>

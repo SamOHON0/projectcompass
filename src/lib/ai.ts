@@ -22,6 +22,7 @@ export interface StructuredNoteResult {
 }
 
 import type { IncidentField } from "./types";
+import { SERVICE } from "./data";
 
 /**
  * Compass drafts the incident report from the case note it just structured.
@@ -33,9 +34,9 @@ export function draftIncidentFields(residentName: string): IncidentField[] {
   return [
     { label: "Incident type", value: "Verbal aggression toward staff", prefilled: true },
     { label: "Date and time", value: "Monday 17 August 2026, 14:00", prefilled: true },
-    { label: "Location", value: "Room 4, Cara House", prefilled: true },
+    { label: "Location", value: `Room 4, ${SERVICE.name}`, prefilled: true },
     { label: "Resident involved", value: residentName, prefilled: true },
-    { label: "Staff involved", value: "Aoife Brennan, Project Worker", prefilled: true },
+    { label: "Staff involved", value: `${SERVICE.workerName}, ${SERVICE.workerRole}`, prefilled: true },
     {
       label: "Description of incident",
       value: `Welfare check completed at 14:00 in ${firstName}'s room. ${firstName} was intoxicated and became verbally agitated and raised his voice when asked about the missed GP appointment. No threats were made and there was no physical contact. The situation de-escalated through conversation and ${firstName} accepted a cup of tea in the communal kitchen.`,
@@ -44,7 +45,7 @@ export function draftIncidentFields(residentName: string): IncidentField[] {
     },
     {
       label: "Immediate action taken",
-      value: "Verbal de-escalation. Resident moved to communal area. Welfare monitored for the remainder of the shift. Deputy Manager notified through Compass.",
+      value: "Verbal de-escalation. Resident moved to communal area. Welfare monitored for the remainder of the shift. Manager notified through Compass.",
       prefilled: true,
       multiline: true,
     },
@@ -69,7 +70,7 @@ export function draftIncidentFields(residentName: string): IncidentField[] {
 
 export const PIPELINE_STEPS = [
   "Structuring case note",
-  "Reviewing language",
+  "Checking language is trauma-informed",
   "Updating actions",
   "Assessing risk",
   "Preparing handover",
@@ -96,7 +97,7 @@ export function processNote(residentName: string, raw: string): StructuredNoteRe
           {
             original: "got aggressive",
             suggested: "became verbally agitated and raised his voice",
-            reason: "More specific and trauma-informed. Describes the behaviour rather than labelling the person.",
+            reason: "Trauma-informed: describes the behaviour rather than labelling the person, and keeps the facts exactly as recorded.",
           },
         ]
       : [],
@@ -116,7 +117,7 @@ export function processNote(residentName: string, raw: string): StructuredNoteRe
     handoverText: `${residentName}: intoxicated at 14:00 welfare check, verbally agitated but de-escalated. Drinking since Thursday (family news). Saying he will not attend tomorrow's housing meeting. Incident report pending. Please check in this evening and record any further drinking.`,
     managerAlert: {
       title: `Incident during welfare check, ${residentName}`,
-      detail: "Verbal aggression while intoxicated. De-escalated by Aoife Brennan. Compass has raised risk to Red and drafted an incident report for review. Housing meeting attendance now at risk.",
+      detail: `Verbal aggression while intoxicated. De-escalated by ${SERVICE.workerName}. Compass has raised risk to Red and drafted an incident report for review. Housing meeting attendance now at risk.`,
       kind: "incident",
     },
   };

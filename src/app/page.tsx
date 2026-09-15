@@ -25,7 +25,7 @@ export default function Home() {
             What do I need to know, and what do I need to do for my clients today? Handover, caseload, actions and the
             smart case note.
           </p>
-          <span className="who">Sign in as Aoife Brennan, Project Worker</span>
+          <span className="who">Sign in as {SERVICE.workerName}, {SERVICE.workerRole}</span>
         </Link>
         <Link href="/manager" className="role-card">
           <h2>Manager view</h2>
@@ -33,7 +33,7 @@ export default function Home() {
             What is happening in my service, what needs my attention, and where do I need to intervene? Oversight, risk
             and operations.
           </p>
-          <span className="who">Sign in as Niamh Kavanagh, Deputy Manager</span>
+          <span className="who">Sign in as {SERVICE.managerName}, {SERVICE.managerRole}</span>
         </Link>
       </div>
 

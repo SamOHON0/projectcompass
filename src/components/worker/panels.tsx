@@ -1,37 +1,81 @@
 "use client";
 
+import { useState } from "react";
 import { useCompass } from "@/lib/store";
+import { SERVICE } from "@/lib/data";
 import { NewPill, RagPill } from "@/components/Badges";
 import GoalPathway from "@/components/GoalPathway";
 import { MOVE_ON_LABEL, goalStatus } from "@/lib/types";
-import type { Resident } from "@/lib/types";
+import type { HandoverItem, Resident } from "@/lib/types";
 
+/**
+ * The handover, cut to this worker's shift.
+ *
+ * Bill asked for it to feel personal: when Farlen logs in, the parts that
+ * concern Farlen's caseload, the actions due today, or the whole building come first,
+ * and the rest of the service is one click away rather than gone. Each item
+ * says why Compass picked it, so the cut is checkable rather than magic.
+ */
 export function HandoverPanel() {
-  const { handover, residents } = useCompass();
+  const { handover, residents, actions } = useCompass();
+  const [showAll, setShowAll] = useState(false);
+
+  const mine = new Set(residents.filter((r) => r.keyWorker === SERVICE.workerName).map((r) => r.id));
+  const actionToday = new Set(
+    actions
+      .filter((a) => !a.done && (a.overdue || /^today/i.test(a.due)))
+      .map((a) => a.residentId)
+  );
+
+  const why = (h: HandoverItem): string | null => {
+    if (h.residentId === null) return h.tone === "info" ? null : "Whole building";
+    if (!mine.has(h.residentId)) return null;
+    return actionToday.has(h.residentId) ? "Your client, action today" : "Your client";
+  };
+
+  const forYou = handover.filter((h) => why(h) !== null);
+  const rest = handover.filter((h) => why(h) === null);
+
+  const renderRow = (h: HandoverItem) => {
+    const res = residents.find((r) => r.id === h.residentId);
+    const reason = why(h);
+    return (
+      <div className="row" key={h.id}>
+        <span className={`tone-dot tone-${h.tone}`} aria-hidden />
+        <div className="row-main">
+          <div className="row-title">
+            {res ? res.name : "Service"} {h.isNew && <NewPill />}
+            {reason && <span className="handover-why">{reason}</span>}
+          </div>
+          <div className="row-sub">{h.text}</div>
+        </div>
+        <span className="row-meta">{h.when}</span>
+      </div>
+    );
+  };
+
   return (
     <section className="card">
       <div className="card-head">
         <h2>Your handover</h2>
-        <span className="sub">since your last shift, filtered to what you need</span>
+        <span className="sub">
+          {forYou.length} of {handover.length} entries picked for your shift
+        </span>
       </div>
       <div className="card-body">
-        <div className="row-list">
-          {handover.map((h) => {
-            const res = residents.find((r) => r.id === h.residentId);
-            return (
-              <div className="row" key={h.id}>
-                <span className={`tone-dot tone-${h.tone}`} aria-hidden />
-                <div className="row-main">
-                  <div className="row-title">
-                    {res ? res.name : "Service"} {h.isNew && <NewPill />}
-                  </div>
-                  <div className="row-sub">{h.text}</div>
-                </div>
-                <span className="row-meta">{h.when}</span>
-              </div>
-            );
-          })}
-        </div>
+        <div className="row-list">{forYou.map(renderRow)}</div>
+        {rest.length > 0 && (
+          <div className="handover-rest">
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={() => setShowAll((v) => !v)}
+              aria-expanded={showAll}
+            >
+              {showAll ? "Hide the rest of the service" : `Show full handover (${rest.length} more)`}
+            </button>
+            {showAll && <div className="row-list">{rest.map(renderRow)}</div>}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -95,7 +139,7 @@ export function ClientGrid({
   onSelect: (id: string) => void;
 }) {
   const { residents } = useCompass();
-  const mine = residents.filter((r) => r.keyWorker === "Aoife Brennan");
+  const mine = residents.filter((r) => r.keyWorker === SERVICE.workerName);
   return (
     <section className="card">
       <div className="card-head">

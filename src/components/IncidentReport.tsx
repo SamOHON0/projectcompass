@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useCompass } from "@/lib/store";
 import Modal from "@/components/Modal";
 import type { IncidentRecord, Role } from "@/lib/types";
+import { SERVICE } from "@/lib/data";
 
 export default function IncidentReport({
   incident,
@@ -136,8 +137,8 @@ export default function IncidentReport({
           {role === "worker" && incident.status === "awaiting-signoff" && (
             <>
               <div className="flow-banner">
-                <strong>Submitted for sign-off.</strong> This is now with Niamh Kavanagh, and it is off your actions
-                list. The risk review she needs is already on hers.
+                <strong>Submitted for sign-off.</strong> This is now with {SERVICE.managerName}, and it is off your actions
+                list. The risk review he needs is already on his.
               </div>
               <div className="modal-actions">
                 <button className="btn btn-primary" onClick={onClose}>
@@ -190,7 +191,7 @@ export default function IncidentReport({
           {role === "manager" && incident.status === "needs-worker" && (
             <div className="modal-actions">
               <span className="field-help" style={{ marginTop: 0 }}>
-                Aoife has not submitted this yet. Two fields are still with her.
+                {incident.raisedBy} has not submitted this yet. Two fields are still to be completed.
               </span>
               <button className="btn btn-secondary" onClick={onClose}>
                 Close

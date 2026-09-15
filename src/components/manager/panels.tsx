@@ -191,17 +191,26 @@ export function IncidentTrend() {
   );
 }
 
+/**
+ * The manager's cut of the same handover: everything, but risk first, then
+ * anything that needs attention, then the routine. Same entries Farlen sees,
+ * ordered for oversight rather than for a caseload.
+ */
 export function HandoverOverview() {
   const { handover, residents } = useCompass();
+  const weight = { risk: 0, attention: 1, info: 2 } as const;
+  const ordered = [...handover].sort(
+    (a, b) => (a.isNew ? 0 : 1) - (b.isNew ? 0 : 1) || weight[a.tone] - weight[b.tone]
+  );
   return (
     <section className="card">
       <div className="card-head">
         <h2>Handover overview</h2>
-        <span className="sub">key developments since your last shift</span>
+        <span className="sub">every entry since your last shift, risk first</span>
       </div>
       <div className="card-body">
         <div className="row-list">
-          {handover.slice(0, 4).map((h) => {
+          {ordered.map((h) => {
             const res = residents.find((r) => r.id === h.residentId);
             return (
               <div className="row" key={h.id}>

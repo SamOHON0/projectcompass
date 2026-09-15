@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useCompass } from "@/lib/store";
 import Modal from "@/components/Modal";
-import { EXAMPLE_NOTE_TEXT } from "@/lib/data";
+import { EXAMPLE_NOTE_TEXT, SERVICE } from "@/lib/data";
 import { PIPELINE_STEPS, type StructuredNoteResult } from "@/lib/ai";
 
 type Stage = "compose" | "processing" | "review" | "saved";
@@ -71,7 +71,7 @@ export default function SmartCaseNote({
               </label>
               <select id="note-resident" className="select" value={residentId} onChange={(e) => setResidentId(e.target.value)}>
                 {residents
-                  .filter((r) => r.keyWorker === "Aoife Brennan")
+                  .filter((r) => r.keyWorker === SERVICE.workerName)
                   .map((r) => (
                     <option key={r.id} value={r.id}>
                       {r.name}
@@ -91,8 +91,8 @@ export default function SmartCaseNote({
                   onChange={(e) => setText(e.target.value)}
                 />
                 <p className="field-help">
-                  Write naturally. Compass will structure the note, suggest professional wording, create any follow-up
-                  actions, and update handover and management views.
+                  Write naturally. Compass will structure the note, suggest clear, factual, trauma-informed wording
+                  without changing what happened, create any follow-up actions, and update handover and management views.
                 </p>
               </div>
 
@@ -149,7 +149,7 @@ export default function SmartCaseNote({
 
               {result.languageSuggestions.length > 0 && (
                 <div className="result-block">
-                  <h3>Language suggestion</h3>
+                  <h3>Trauma-informed language</h3>
                   {result.languageSuggestions.map((s) => (
                     <div className="suggestion" key={s.original}>
                       <div>

@@ -91,7 +91,7 @@ const KNOWLEDGE: Record<string, Knowledge> = {
       sources: ["Risk assessment", "Case notes, last 30 days", "Placement history, 2024"],
       followUps: ["What should I do next?", "Catch me up on Michael"],
       suggestedActions: ctx.incidentRecorded
-        ? ["Bring to today's handover as priority", "Check in this evening when sober", "Flag to Deputy Manager"]
+        ? ["Bring to today's handover as priority", "Check in this evening when sober", "Flag to the manager"]
         : ["Complete the overdue GP follow-up", "Check in before Tuesday's meeting"],
     }),
     next: (ctx) => ({
@@ -105,7 +105,7 @@ const KNOWLEDGE: Record<string, Knowledge> = {
         : ["Add GP follow-up to today"],
     }),
     housing: () => ({
-      text: "Furthest along of any of his goals at 70 per cent. Social housing application with Limerick City Council is live, supporting documents are complete since he replaced his birth certificate and PPS card in June, and there is a meeting on Tuesday 18 August at 11:00. The risk is attendance rather than eligibility. A missed meeting typically pushes the review back about six weeks.",
+      text: "Furthest along of any of his goals at 70 per cent. Social housing application with Laois County Council is live, supporting documents are complete since he replaced his birth certificate and PPS card in June, and there is a meeting on Tuesday 18 August at 11:00. The risk is attendance rather than eligibility. A missed meeting typically pushes the review back about six weeks.",
       sources: ["Housing goal", "Documentation goal, achieved 12 Jun", "Council correspondence"],
       followUps: ["What should I do next?", "What are the risks right now?"],
     }),
@@ -144,7 +144,7 @@ const KNOWLEDGE: Record<string, Knowledge> = {
       followUps: ["Why is Sean disengaging?", "What should I do next?"],
     }),
     next: () => ({
-      text: "His session is at 16:00 today, so the immediate thing is to make sure it happens. Compass would suggest keeping it informal rather than leading with the two misses, because for care leavers a session that opens with attendance often becomes the last one. The risk review is two days overdue and your manager has it on her outstanding list.",
+      text: "His session is at 16:00 today, so the immediate thing is to make sure it happens. Compass would suggest keeping it informal rather than leading with the two misses, because for care leavers a session that opens with attendance often becomes the last one. The risk review is two days overdue and your manager has it on his outstanding list.",
       sources: ["Actions due", "Risk review, overdue", "Service policy"],
       followUps: ["Why is Sean disengaging?"],
       suggestedActions: ["Complete overdue risk review"],

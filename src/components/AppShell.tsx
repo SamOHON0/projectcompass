@@ -5,8 +5,10 @@ import type { Role } from "@/lib/types";
 import DemoBanner from "@/components/DemoBanner";
 
 function initials(name: string) {
-  return name
-    .split(" ")
+  const parts = name.split(" ").filter(Boolean);
+  // A single first name gets its first two letters, so the avatar still reads.
+  if (parts.length === 1) return parts[0].slice(0, 2);
+  return parts
     .map((p) => p[0])
     .slice(0, 2)
     .join("");

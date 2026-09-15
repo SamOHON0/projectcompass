@@ -1,5 +1,5 @@
 // End-to-end click-through of the demo story, run against the real components.
-import { chromium } from "playwright";
+import { launchChromium } from "./browser.mjs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -9,7 +9,7 @@ const shots = join(here, "..", "preview", "flow");
 import { mkdirSync } from "fs";
 mkdirSync(shots, { recursive: true });
 
-const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium", args: ["--no-sandbox"] });
+const browser = await launchChromium();
 const page = await browser.newPage({ viewport: { width: 1360, height: 950 } });
 
 const errors = [];
@@ -58,6 +58,19 @@ const workerText = await page.locator(".page").innerText();
 check("Risk raised to Red on worker view", workerText.includes("Red"));
 check("Incident action created", workerText.includes("INC-2026-042"));
 check("Handover updated", workerText.includes("intoxicated"));
+
+// --- 3b. Daily tasks and the personalised handover (Bill, 3 Sep) ---
+check("Daily tasks sit beside the caseload", workerText.includes("Daily tasks") && workerText.includes("Email bedlist"));
+check("Compass ties the incident to the afternoon round", workerText.includes("Start with Room 4"));
+check("Laundry check shows as outstanding", /Laundry check[\s\S]{0,120}Outstanding/.test(workerText));
+await page.getByLabel("Laundry check, By 14:00").check();
+check("Ticking a daily task updates the count", (await page.locator(".page").innerText()).includes("3 of 6 done"));
+
+check("Handover is cut to this shift", workerText.includes("Show full handover"));
+check("Handover says why an entry was picked", /your client/i.test(workerText));
+check("Handover hides the other workers' clients by default", !workerText.includes("Plate to be kept"));
+await page.getByRole("button", { name: /Show full handover/ }).click();
+check("Full handover is one click away", (await page.locator(".page").innerText()).includes("Plate to be kept"));
 await page.screenshot({ path: join(shots, "2-worker-after.png"), fullPage: true });
 
 // --- 4. Ask Compass, after the incident: answer must change ---
@@ -89,6 +102,8 @@ await page.waitForSelector(".page-head h1");
 const managerText = await page.locator(".page").innerText();
 check("Manager sees the new incident", managerText.includes("Incident during welfare check"));
 check("Manager risk count updated", managerText.includes("2 Red"));
+check("Manager has daily tasks including the relief tracker", managerText.includes("Relief tracker"));
+check("Setting renamed as Bill asked", managerText.includes("Tina House") && managerText.includes("Brian"));
 await page.screenshot({ path: join(shots, "4-manager-after.png"), fullPage: true });
 
 // Path A: open the resident record from the alert.

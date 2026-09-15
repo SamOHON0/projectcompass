@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
-import type { ActionItem, CaseNote, HandoverItem, IncidentRecord, ManagerAlert, Resident } from "./types";
-import { INITIAL_ACTIONS, INITIAL_ALERTS, INITIAL_HANDOVER, INITIAL_NOTES, RESIDENTS, SERVICE } from "./data";
+import type { ActionItem, CaseNote, DailyTask, HandoverItem, IncidentRecord, ManagerAlert, Resident } from "./types";
+import { DAILY_TASKS, INITIAL_ACTIONS, INITIAL_ALERTS, INITIAL_HANDOVER, INITIAL_NOTES, RESIDENTS, SERVICE } from "./data";
 import { draftIncidentFields, processNote, type StructuredNoteResult } from "./ai";
 
 interface CompassState {
@@ -12,9 +12,11 @@ interface CompassState {
   handover: HandoverItem[];
   alerts: ManagerAlert[];
   incidents: IncidentRecord[];
+  dailyTasks: DailyTask[];
   demoRan: boolean;
   submitNote: (residentId: string, raw: string, result: StructuredNoteResult) => void;
   toggleAction: (id: string) => void;
+  toggleDailyTask: (id: string) => void;
   runPipeline: (residentId: string, raw: string) => StructuredNoteResult;
   updateIncidentField: (incidentId: string, label: string, value: string) => void;
   submitIncident: (incidentId: string) => void;
@@ -35,6 +37,7 @@ export function CompassProvider({ children }: { children: React.ReactNode }) {
   const [handover, setHandover] = useState<HandoverItem[]>(INITIAL_HANDOVER);
   const [alerts, setAlerts] = useState<ManagerAlert[]>(INITIAL_ALERTS);
   const [incidents, setIncidents] = useState<IncidentRecord[]>([]);
+  const [dailyTasks, setDailyTasks] = useState<DailyTask[]>(DAILY_TASKS);
   const [demoRan, setDemoRan] = useState(false);
 
   const runPipeline = useCallback((residentId: string, raw: string) => {
@@ -177,6 +180,7 @@ export function CompassProvider({ children }: { children: React.ReactNode }) {
     setHandover(INITIAL_HANDOVER);
     setAlerts(INITIAL_ALERTS);
     setIncidents([]);
+    setDailyTasks(DAILY_TASKS);
     setDemoRan(false);
   }, []);
 
@@ -188,6 +192,10 @@ export function CompassProvider({ children }: { children: React.ReactNode }) {
     setActions((prev) => prev.map((a) => (a.id === id ? { ...a, done: !a.done } : a)));
   }, []);
 
+  const toggleDailyTask = useCallback((id: string) => {
+    setDailyTasks((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+  }, []);
+
   const value = useMemo(
     () => ({
       residents,
@@ -196,9 +204,11 @@ export function CompassProvider({ children }: { children: React.ReactNode }) {
       handover,
       alerts,
       incidents,
+      dailyTasks,
       demoRan,
       submitNote,
       toggleAction,
+      toggleDailyTask,
       runPipeline,
       updateIncidentField,
       submitIncident,
@@ -213,9 +223,11 @@ export function CompassProvider({ children }: { children: React.ReactNode }) {
       handover,
       alerts,
       incidents,
+      dailyTasks,
       demoRan,
       submitNote,
       toggleAction,
+      toggleDailyTask,
       runPipeline,
       updateIncidentField,
       submitIncident,
