@@ -6,21 +6,21 @@ The setting is Tina House, an 18-bed service in Portlaoise. Farlen is the Projec
 
 ## What it demonstrates
 
-Two role-based views drawing from one shared source of information:
+Two role-based views drawing from one shared source of information. Each is an app with a sidebar: the sections of that role's day, the role's primary action, and the demo role switch. Sections switch in place (the URL hash records which one is open) so each screen leads with one job rather than everything at once.
 
-- **Project Worker view** (`/worker`): handover cut to this shift, My Clients caseload, resident profile with goals and independent living progress, actions due, daily tasks (wellbeing rounds, bedlist, laundry and fire checks), Ask Compass, and the Smart Case Note.
-- **Manager view** (`/manager`): RAG service overview, critical updates, outstanding actions, the manager's own daily tasks (relief tracker, occupancy return, alarm test), incident trends with Compass insights, handover overview, client progress, and staff/operational prompts. Alerts and residents open the full record.
+- **Project Worker view** (`/worker`). *Today*: the handover cut to this shift, actions due, and daily tasks (wellbeing rounds, bedlist, laundry and fire checks). *My clients*: the caseload beside the open resident record (risk, incident reports, goals and independent living progress, case notes) with Ask Compass under it. The Smart Case Note is in the sidebar on both.
+- **Manager view** (`/manager`). *Overview*: RAG service numbers, critical updates, incident trends with Compass insights, outstanding actions and the manager's own daily tasks (relief tracker, occupancy return, alarm test). *Residents*: progress across the service, stalled cases first. *Operations*: the handover overview and staff/operational prompts. Alerts and residents open the full record.
 
 ### The demo story
 
 Run it in this order. It takes about two minutes and shows one piece of frontline information moving through the whole service.
 
-1. **Worker view.** Ask Compass "Catch me up on Michael". Note the answer cites what it drew on.
-2. **New smart case note** → **Insert example note** → **Process with Compass**. Compass structures the note, suggests trauma-informed wording ("got aggressive" becomes "became verbally agitated and raised his voice"), and lists what it has prepared. Apply the suggestion, then approve.
-3. **Back on the worker view**, Michael is now Red, three new actions exist, the handover is written, an incident report is waiting, and the 15:00 wellbeing round now carries a Compass note to start with Room 4.
-4. **Ask Compass "What are the risks right now?"** The answer has changed, because the record has.
-5. **Open draft report.** Compass has filled nine fields from the note and deliberately left two: who else was present, and the resident's own words. Submitting is blocked until a human fills them.
-6. **Switch to Manager.** The incident is on the dashboard, the Red count has moved, and the handover is updated. Click the alert to open Michael's record, then the incident report, and sign it off.
+1. **Worker view, My clients.** Ask Compass "Catch me up on Michael". Note the answer cites what it drew on.
+2. **New smart case note** (sidebar) → **Insert example note** → **Process with Compass**. Compass structures the note, suggests trauma-informed wording ("got aggressive" becomes "became verbally agitated and raised his voice"), and lists what it has prepared. Apply the suggestion, then approve.
+3. **Today.** Michael is now Red, three new actions exist (the Today badge in the sidebar has moved), the handover is written, an incident report is waiting, and the 15:00 wellbeing round now carries a Compass note to start with Room 4.
+4. **My clients, Ask Compass "What are the risks right now?"** The answer has changed, because the record has.
+5. **Today, Open draft report.** Compass has filled nine fields from the note and deliberately left two: who else was present, and the resident's own words. Submitting is blocked until a human fills them.
+6. **Switch to Manager.** The Overview badge shows the new item. The incident is at the top of critical updates, the Red count has moved, and the handover on Operations is updated. Click the alert to open Michael's record, then the incident report, and sign it off.
 
 The point of step 5 is that Compass drafts, a person decides. Every field is labelled "Compass drafted" or "You added this".
 
@@ -65,7 +65,9 @@ Push to GitHub, then import the repo in Vercel. No environment variables, no dat
 - `src/lib/ai.ts`: the case note pipeline and incident report drafting
 - `src/lib/assistant.ts`: Ask Compass knowledge base and question matching
 - `src/lib/store.tsx`: shared state; one saved note fans out to every view
-- `src/app/worker`, `src/app/manager`: the two role views
+- `src/app/worker`, `src/app/manager`: the two routes, each rendering its screen component
+- `src/components/worker/WorkerScreen.tsx`, `src/components/manager/ManagerScreen.tsx`: the role screens and their sections
+- `src/components/AppShell.tsx`: the sidebar frame (sections, primary action, role switch)
 - `src/components`: shared UI, plus role-specific panels
 
 ## Verification
@@ -81,8 +83,8 @@ npm run verify
 | --- | --- |
 | `npm run typecheck` | The app compiles under strict TypeScript. |
 | `npm run test:contrast` | Every colour pair the UI renders meets WCAG AA. Parsed from `globals.css`, so it cannot drift from the stylesheet. |
-| `npm run test:a11y` | 11 rendered views have accessible names on every control, no duplicate ids, no skipped headings, and 24px minimum target sizes. |
-| `npm run test:flow` | 31 assertions clicking the whole demo story in a real browser, including keyboard operation. |
+| `npm run test:a11y` | 14 rendered views have accessible names on every control, no duplicate ids, no skipped headings, and 24px minimum target sizes. |
+| `npm run test:flow` | 42 assertions clicking the whole demo story in a real browser, including section navigation and keyboard operation. |
 | `node scripts/shoot.mjs` | Screenshots every view at 1360px and 390px and fails on horizontal overflow. |
 
 `scripts/` is developer tooling and is not part of the deployed app. The flow test covers the cross-role loop: the assistant answering and then changing its answer, the case note pipeline, the language suggestion rewriting the note, risk and handover fan-out, the incident report gating submission until a human completes it, the manager drill-down through to sign-off, plus Escape, focus return, and the skip link.

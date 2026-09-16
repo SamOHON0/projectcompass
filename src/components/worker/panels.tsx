@@ -131,7 +131,13 @@ export function ActionsPanel({ onOpenIncident }: { onOpenIncident?: () => void }
   );
 }
 
-export function ClientGrid({
+const RAG_LABEL = { green: "Green", amber: "Amber", red: "Red" } as const;
+
+/**
+ * The caseload as a list to pick from, with the record opening beside it.
+ * One resident is always selected, so the screen never shows an empty right-hand side.
+ */
+export function ClientRail({
   selectedId,
   onSelect,
 }: {
@@ -141,31 +147,32 @@ export function ClientGrid({
   const { residents } = useCompass();
   const mine = residents.filter((r) => r.keyWorker === SERVICE.workerName);
   return (
-    <section className="card">
+    <section className="card" aria-labelledby="caseload-heading">
       <div className="card-head">
-        <h2>My clients</h2>
-        <span className="sub">{mine.length} allocated</span>
+        <h2 id="caseload-heading">Caseload</h2>
+        <span className="count">{mine.length}</span>
       </div>
-      <div className="card-body">
-        <div className="client-grid">
-          {mine.map((r) => (
+      <div className="client-list">
+        {mine.map((r) => {
+          const active = selectedId === r.id;
+          return (
             <button
               key={r.id}
-              className={`client-card ${selectedId === r.id ? "selected" : ""}`}
+              className={`client-item ${active ? "active" : ""}`}
+              aria-current={active ? "true" : undefined}
               onClick={() => onSelect(r.id)}
             >
-              <div className="client-card-top">
-                <span className="client-name">{r.name}</span>
-                <RagPill rag={r.rag} />
-                <span className="client-room" style={{ marginLeft: "auto" }}>
-                  {r.room}
-                </span>
-              </div>
-              <div className="client-priority">{r.priorities[0]}</div>
-              <div className="client-next">Next: {r.nextAppointment}</div>
+              <span className="client-item-top">
+                <span className={`rag-dot rag-${r.rag}`} aria-hidden />
+                <span className="sr-only">Risk {RAG_LABEL[r.rag]}. </span>
+                <span className="name">{r.name}</span>
+                <span className="room">{r.room}</span>
+              </span>
+              <span className="client-item-sub">{r.priorities[0]}</span>
+              <span className="client-item-next">Next: {r.nextAppointment}</span>
             </button>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -185,11 +192,11 @@ export function ResidentDetail({
   const residentNotes = notes.filter((n) => n.residentId === resident.id);
   return (
     <section className="card">
-      <div className="card-body">
+      <div className="record-head">
         <div className="detail-head">
           <h2>{resident.name}</h2>
           <RagPill rag={resident.rag} />
-          <button className="btn btn-sm btn-primary" style={{ marginLeft: "auto" }} onClick={onOpenNote}>
+          <button className="btn btn-sm btn-secondary" style={{ marginLeft: "auto" }} onClick={onOpenNote}>
             New smart case note
           </button>
           <div className="detail-meta">
@@ -202,7 +209,9 @@ export function ResidentDetail({
           {resident.riskSummary}
           <div className="risk-when">Last updated {resident.riskUpdated}</div>
         </div>
+      </div>
 
+      <div className="card-body record-body">
         {residentIncidents.length > 0 && onOpenIncident && (
           <>
             <div className="section-label">Incident reports</div>

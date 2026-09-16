@@ -9,6 +9,8 @@ import { fileURLToPath } from "url";
 import Home from "@/app/page";
 import WorkerPage from "@/app/worker/page";
 import ManagerPage from "@/app/manager/page";
+import WorkerScreen from "@/components/worker/WorkerScreen";
+import ManagerScreen from "@/components/manager/ManagerScreen";
 import SmartCaseNote from "@/components/worker/SmartCaseNote";
 import IncidentReport from "@/components/IncidentReport";
 import ResidentDrawer from "@/components/manager/ResidentDrawer";
@@ -57,9 +59,27 @@ const views: [string, React.ReactElement][] = [
     </CompassProvider>,
   ],
   [
+    "worker-clients",
+    <CompassProvider>
+      <WorkerScreen initialView="clients" />
+    </CompassProvider>,
+  ],
+  [
     "manager",
     <CompassProvider>
       <ManagerPage />
+    </CompassProvider>,
+  ],
+  [
+    "manager-residents",
+    <CompassProvider>
+      <ManagerScreen initialView="residents" />
+    </CompassProvider>,
+  ],
+  [
+    "manager-operations",
+    <CompassProvider>
+      <ManagerScreen initialView="operations" />
     </CompassProvider>,
   ],
   [

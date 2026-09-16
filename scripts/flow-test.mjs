@@ -25,7 +25,15 @@ const check = (name, ok, extra = "") => {
 await page.goto(page_url);
 await page.waitForSelector(".page-head h1");
 
+// Section navigation lives in the sidebar. Today holds handover, actions and
+// daily tasks; My clients holds the record and Ask Compass.
+const goTo = async (section) => {
+  await page.getByRole("button", { name: new RegExp(`^${section}`) }).click();
+  await page.waitForSelector(".page-head h1");
+};
+
 // --- 1. Ask Compass, before the incident ---
+await goTo("My clients");
 await page.getByRole("button", { name: "Catch me up on Michael" }).first().click();
 await page.waitForSelector(".ask-a p");
 const answerBefore = await page.locator(".ask-a p").first().innerText();
@@ -54,6 +62,7 @@ await page.screenshot({ path: join(shots, "1-note-saved.png") });
 await page.getByRole("button", { name: "Back to my day" }).click();
 
 // --- 3. Worker view updated ---
+await goTo("Today");
 const workerText = await page.locator(".page").innerText();
 check("Risk raised to Red on worker view", workerText.includes("Red"));
 check("Incident action created", workerText.includes("INC-2026-042"));
@@ -74,12 +83,15 @@ check("Full handover is one click away", (await page.locator(".page").innerText(
 await page.screenshot({ path: join(shots, "2-worker-after.png"), fullPage: true });
 
 // --- 4. Ask Compass, after the incident: answer must change ---
+// The assistant remounts when the section changes, so the thread starts fresh.
+await goTo("My clients");
 await page.getByRole("button", { name: "What are the risks right now?" }).first().click();
-await page.waitForFunction(() => document.querySelectorAll(".ask-a p").length >= 2);
+await page.waitForFunction(() => document.querySelectorAll(".ask-a p").length >= 1);
 const riskAnswer = await page.locator(".ask-a p").last().innerText();
 check("Assistant is state aware", /Red as of today/i.test(riskAnswer), riskAnswer.slice(0, 45) + "...");
 
 // --- 5. Incident report, worker side ---
+await goTo("Today");
 await page.getByRole("button", { name: "Open draft report" }).click();
 await page.waitForSelector("text=Incident report INC-2026-042");
 const submitBtn = page.getByRole("button", { name: "Submit for sign-off" });

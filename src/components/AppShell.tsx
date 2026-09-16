@@ -1,8 +1,19 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { SERVICE } from "@/lib/data";
 import type { Role } from "@/lib/types";
 import DemoBanner from "@/components/DemoBanner";
+
+export interface ShellView<V extends string> {
+  id: V;
+  label: string;
+  /** Shown as a badge beside the label when greater than zero. */
+  count?: number;
+  /** Highlights the badge when something in that section is new since the last look. */
+  isNew?: boolean;
+}
 
 function initials(name: string) {
   const parts = name.split(" ").filter(Boolean);
@@ -25,37 +36,106 @@ export function BrandMark({ size = 28 }: { size?: number }) {
   );
 }
 
-export default function AppShell({ role, children }: { role: Role; children: ReactNode }) {
+/**
+ * The app frame: a sidebar carrying the sections of the current role view, the
+ * primary action for that role, and the demo role switch. Each role page owns
+ * which section is showing; the shell only draws the navigation for it.
+ */
+export default function AppShell<V extends string>({
+  role,
+  views,
+  view,
+  onViewChange,
+  primaryAction,
+  children,
+}: {
+  role: Role;
+  views: ShellView<V>[];
+  view: V;
+  onViewChange: (view: V) => void;
+  primaryAction?: { label: string; onClick: () => void };
+  children: ReactNode;
+}) {
   const user = role === "worker" ? SERVICE.workerName : SERVICE.managerName;
+  const userRole = role === "worker" ? SERVICE.workerRole : SERVICE.managerRole;
+
   return (
     <div>
       <a href="#main" className="skip-link">
         Skip to main content
       </a>
       <DemoBanner />
-      <header className="topbar">
-        <Link href="/" className="brand">
-          <BrandMark />
-          Compass
-        </Link>
-        <span className="topbar-service">
-          {SERVICE.name}, {SERVICE.location}
-        </span>
-        <div className="topbar-right">
-          <nav className="role-switch" aria-label="Switch role view">
-            <Link href="/worker" className={role === "worker" ? "active" : ""} aria-current={role === "worker" ? "page" : undefined}>
-              Project Worker
-            </Link>
-            <Link href="/manager" className={role === "manager" ? "active" : ""} aria-current={role === "manager" ? "page" : undefined}>
-              Manager
-            </Link>
+      <div className="shell">
+        <aside className="sidebar">
+          <Link href="/" className="sidebar-brand">
+            <BrandMark />
+            <span className="sidebar-brand-text">
+              <span className="brand-name">Compass</span>
+              <span className="brand-service">
+                {SERVICE.name}, {SERVICE.location}
+              </span>
+            </span>
+          </Link>
+
+          {primaryAction && (
+            <button className="btn btn-primary sidebar-action" onClick={primaryAction.onClick}>
+              {primaryAction.label}
+            </button>
+          )}
+
+          <nav className="nav" aria-label={`${userRole} sections`}>
+            {views.map((v) => {
+              const active = v.id === view;
+              return (
+                <button
+                  key={v.id}
+                  className={`nav-item ${active ? "active" : ""}`}
+                  aria-current={active ? "page" : undefined}
+                  onClick={() => onViewChange(v.id)}
+                >
+                  <span className="nav-label">{v.label}</span>
+                  {v.count !== undefined && v.count > 0 && (
+                    <span className={`nav-count ${v.isNew ? "is-new" : ""}`}>{v.count}</span>
+                  )}
+                </button>
+              );
+            })}
           </nav>
-          <span className="avatar" title={user} aria-label={`Signed in as ${user}`} role="img">
-            {initials(user)}
-          </span>
-        </div>
-      </header>
-      {children}
+
+          <div className="sidebar-foot">
+            <div className="role-switch-label" id="role-switch-label">
+              Demo: switch view
+            </div>
+            <nav className="role-switch" aria-labelledby="role-switch-label">
+              <Link
+                href="/worker"
+                className={role === "worker" ? "active" : ""}
+                aria-current={role === "worker" ? "page" : undefined}
+              >
+                Project Worker
+              </Link>
+              <Link
+                href="/manager"
+                className={role === "manager" ? "active" : ""}
+                aria-current={role === "manager" ? "page" : undefined}
+              >
+                Manager
+              </Link>
+            </nav>
+            <div className="user-card">
+              <span className="avatar" aria-hidden>
+                {initials(user)}
+              </span>
+              <span className="user-text">
+                <span className="user-name">{user}</span>
+                <span className="user-role">{userRole}</span>
+              </span>
+            </div>
+          </div>
+        </aside>
+
+        <div className="content">{children}</div>
+      </div>
     </div>
   );
 }
