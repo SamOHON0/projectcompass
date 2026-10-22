@@ -14,7 +14,7 @@
     "verify": "npm run typecheck && npm run preview && npm run test:contrast && npm run test:a11y && npm run test:flow"
   },
   "dependencies": {
-    "next": "^15.4.0",
+    "next": "^15.5.27",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
